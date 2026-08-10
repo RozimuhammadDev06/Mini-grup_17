@@ -1,6 +1,9 @@
+import secrets
 import uuid
-import random
+
+from django.conf import settings
 from django.db import models
+from django.contrib.auth.hashers import identify_hasher
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from rest_framework_simplejwt.tokens import RefreshToken
 from datetime import timedelta
@@ -67,13 +70,17 @@ class User(AbstractUser):
         }
 
     def check_hash_password(self):
-        if not self.password.startswith('pbkdf2_sha256'):
+        """Hash the password unless it already is a recognised hash.
+
+        This used to test for the literal prefix 'pbkdf2_sha256', which
+        double-hashed the value under any other configured hasher.
+        """
+        try:
+            identify_hasher(self.password)
+        except ValueError:
             self.set_password(self.password)
 
     def check_empty_password(self):
-        if not self.username:
-            username = f'username-{uuid.uuid4().__str__().split("-")[-1]}'
-            
         if not self.password:
             password = f'password-{uuid.uuid4().__str__().split("-")[-1]}'
             self.password = password
@@ -133,19 +140,21 @@ class UserOTPVerifications(models.Model):
     for_forget_password_verified = models.BooleanField(default=False)
     resend_attapts = models.IntegerField(default=0)
     error_expired_at = models.DateTimeField()
+    # Set once a code has been consumed, so it can never be replayed.
+    is_used = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.user} | {self.code}"
         
     def generate_code(self):
-        otp = random.randint(100000, 999999)
-        now = timezone.now()
-        next_time = now + timedelta(minutes=3)
-        self.expired_at = next_time
-        self.code = otp
+        code = f"{secrets.randbelow(10 ** 6):06d}"
+        self.expired_at = timezone.now() + timedelta(
+            minutes=settings.OTP_CODE_TTL_MINUTES)
+        self.code = code
+        self.attapts = 0
         self.save()
-        return otp
+        return code
     
     def is_code_expired(self):
         if self.expired_at >= timezone.now():
@@ -171,9 +180,12 @@ class UserOTPIDVerifications(models.Model):
     
 
 class ChangePasswordLogs(models.Model):
+    """
+    Audit trail for password changes. Deliberately stores no password
+    material — only that a change was requested and whether it completed.
+    """
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    old_password = models.CharField(max_length=255)
-    new_password = models.CharField(max_length=255)
     expired_at = models.DateTimeField()
     attapts = models.IntegerField(default=0)
     error_expired_at = models.DateTimeField()
@@ -215,13 +227,13 @@ class ChangeEmailLogs(models.Model):
         return False
 
     def generate_code(self):
-        otp = random.randint(100000, 999999)
-        now = timezone.now()
-        next_time = now + timedelta(minutes=3)
-        self.expired_at = next_time
-        self.code = otp
+        code = f"{secrets.randbelow(10 ** 6):06d}"
+        self.expired_at = timezone.now() + timedelta(
+            minutes=settings.OTP_CODE_TTL_MINUTES)
+        self.code = code
+        self.attapts = 0
         self.save()
-        return otp
+        return code
 
     def is_blocked(self):
         if self.error_expired_at >= timezone.now():

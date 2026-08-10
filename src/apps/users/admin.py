@@ -118,12 +118,6 @@ class ChangePasswordLogsAdmin(admin.ModelAdmin):
 
     ordering = ("-created_at",)
 
-    # passwordlarni admin panelda edit qilib yubormaslik uchun
-    exclude = (
-        "old_password",
-        "new_password",
-    )
-
 
 @admin.register(ChangeEmailLogs)
 class ChangeEmailLogsAdmin(admin.ModelAdmin):

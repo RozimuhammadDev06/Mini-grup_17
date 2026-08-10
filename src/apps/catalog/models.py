@@ -112,6 +112,7 @@ class Product(models.Model):
     attrs_json = models.JSONField(default=dict, blank=True)
     description = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

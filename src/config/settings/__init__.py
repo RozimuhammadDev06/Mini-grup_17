@@ -1,19 +1,22 @@
-import os
-import environ
+"""
+Environment dispatch.
 
-env = environ.Env()
+``DJANGO_SETTINGS_MODULE`` points at this package; the ``DEBUG`` variable
+decides whether development or production settings are loaded.
+"""
+
+import os
+
+import environ
 
 BASE_DIR = os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))))
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
-DEBUG = int(os.environ.get("DEBUG", 1))
+_TRUTHY = ("1", "true", "yes", "on")
+DEBUG = os.environ.get("DEBUG", "1").strip().lower() in _TRUTHY
 
 if DEBUG:
-    print("DEBUG: ", DEBUG)
-    print("Development settings")
-    from .development import *
+    from .development import *  # noqa: F401,F403
 else:
-    print("production settings start")
-    from .production import *
-
+    from .production import *  # noqa: F401,F403
