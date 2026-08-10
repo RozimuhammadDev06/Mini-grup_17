@@ -1,37 +1,40 @@
-from .base import *
-from datetime import timedelta
+"""
+Production settings.
 
-# INSTALLED_APPS += [
-#     third-parties
-# ]
+TLS-dependent hardening is toggled by ``SECURE_SSL_ENABLED`` so the stack can
+also run behind a TLS-terminating proxy or in a staging environment without
+HTTPS, without editing code.
+"""
 
-ALLOWED_HOSTS = env("ALLOWED_HOSTS").split(",")
+from .base import *  # noqa: F401,F403
+from .base import env, env_str
 
-MIDDLEWARE += ['corsheaders.middleware.CorsMiddleware', ]
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+DEBUG = False
 
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=21),
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
-    'VERIFYING_KEY': None,
-    'AUDIENCE': None,
-    'ISSUER': None,
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-    'TOKEN_TYPE_CLAIM': 'token_type',
-    'JTI_CLAIM': 'jti',
-    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
-}
+EMAIL_BACKEND = env_str(
+    "EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
 
+# Behind Nginx/Traefik the original scheme arrives in this header.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
 
-CSRF_TRUSTED_ORIGINS = [o.strip() for o in env("CSRF_TRUSTED_ORIGINS").split(",")]
-CORS_ALLOWED_ORIGINS = [o.strip() for o in env("CORS_ALLOWED_ORIGINS").split(",")]
+SECURE_SSL_ENABLED = env.bool("SECURE_SSL_ENABLED", default=True)
+
+SECURE_SSL_REDIRECT = SECURE_SSL_ENABLED
+SESSION_COOKIE_SECURE = SECURE_SSL_ENABLED
+CSRF_COOKIE_SECURE = SECURE_SSL_ENABLED
+
+SECURE_HSTS_SECONDS = env.int(
+    "SECURE_HSTS_SECONDS", default=31536000) if SECURE_SSL_ENABLED else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = SECURE_SSL_ENABLED
+SECURE_HSTS_PRELOAD = SECURE_SSL_ENABLED
+
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False  # the SPA must read the token to send it back
+SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SAMESITE = "Lax"
+
+# Deliberately no CORS_ALLOW_ALL_ORIGINS here: origins come from
+# CORS_ALLOWED_ORIGINS in the environment.

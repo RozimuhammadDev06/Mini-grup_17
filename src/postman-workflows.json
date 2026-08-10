@@ -2,744 +2,34 @@
   "info": {
     "_postman_id": "bd93d5ec-fab9-4e49-bf5a-1598628032ce",
     "name": "app",
+    "description": "Stroyopttorg backend — REST API v1.\n\n## Setup\n1. Import `postman-variables.json` and select the `local` environment.\n2. Run **auth → register**.\n3. Copy the 6-digit code from the runserver console into the `otp_code` variable, then run **auth → verify**.\n4. Run **auth → login** — it stores `access_token` and `refresh_token` automatically, and every authenticated request inherits Bearer auth from the collection.\n\nPublic requests are marked `noauth` and need no token.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "44540346"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
   },
   "item": [
     {
       "name": "auth",
       "item": [
         {
-          "name": "forget-password",
-          "item": [
-            {
-              "name": "send-otp",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"email\": \"mekop60271@hilostar.com\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/auth/forget-password/otp/",
-                  "host": [
-                    "{{url}}"
-                  ],
-                  "path": [
-                    "user",
-                    "auth",
-                    "forget-password",
-                    "otp",
-                    ""
-                  ]
-                }
-              },
-              "response": [
-                {
-                  "name": "success sent otp",
-                  "originalRequest": {
-                    "method": "POST",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n    \"email\": \"mekop60271@hilostar.com\"\n}",
-                      "options": {
-                        "raw": {
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{url}}/auth/forget-password/otp/",
-                      "host": [
-                        "{{url}}"
-                      ],
-                      "path": [
-                        "user",
-                        "auth",
-                        "forget-password",
-                        "otp",
-                        ""
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": null,
-                  "header": [
-                    {
-                      "key": "Date",
-                      "value": "Thu, 14 May 2026 14:13:35 GMT"
-                    },
-                    {
-                      "key": "Server",
-                      "value": "WSGIServer/0.2 CPython/3.9.6"
-                    },
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    },
-                    {
-                      "key": "Vary",
-                      "value": "Accept, origin"
-                    },
-                    {
-                      "key": "Allow",
-                      "value": "POST, OPTIONS"
-                    },
-                    {
-                      "key": "X-Frame-Options",
-                      "value": "DENY"
-                    },
-                    {
-                      "key": "Content-Length",
-                      "value": "51"
-                    },
-                    {
-                      "key": "X-Content-Type-Options",
-                      "value": "nosniff"
-                    },
-                    {
-                      "key": "Referrer-Policy",
-                      "value": "same-origin"
-                    },
-                    {
-                      "key": "Cross-Origin-Opener-Policy",
-                      "value": "same-origin"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n    \"message\": \"Verifications code sent to your email\"\n}"
-                }
-              ]
-            },
-            {
-              "name": "verifications otp",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"email\": \"mekop60271@hilostar.com\",\n    \"code\": \"914847\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/auth/forget-password/otp/verify/",
-                  "host": [
-                    "{{url}}"
-                  ],
-                  "path": [
-                    "user",
-                    "auth",
-                    "forget-password",
-                    "otp",
-                    "verify",
-                    ""
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "set-password",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"email\": \"mekop60271@hilostar.com\",\n    \"new_password\": \"#Required123\",\n    \"new_password_again\": \"#Required123\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/auth/forget-password/set/",
-                  "host": [
-                    "{{url}}"
-                  ],
-                  "path": [
-                    "user",
-                    "auth",
-                    "forget-password",
-                    "set",
-                    ""
-                  ]
-                }
-              },
-              "response": [
-                {
-                  "name": "not sent otp",
-                  "originalRequest": {
-                    "method": "POST",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n    \"email\": \"mekop60271@hilostar.com\",\n    \"new_password\": \"#Required123\",\n    \"new_password_again\": \"#Required123\"\n}",
-                      "options": {
-                        "raw": {
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{url}}/auth/forget-password/set/",
-                      "host": [
-                        "{{url}}"
-                      ],
-                      "path": [
-                        "user",
-                        "auth",
-                        "forget-password",
-                        "set",
-                        ""
-                      ]
-                    }
-                  },
-                  "status": "Bad Request",
-                  "code": 400,
-                  "_postman_previewlanguage": null,
-                  "header": [
-                    {
-                      "key": "Date",
-                      "value": "Thu, 14 May 2026 14:10:43 GMT"
-                    },
-                    {
-                      "key": "Server",
-                      "value": "WSGIServer/0.2 CPython/3.9.6"
-                    },
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    },
-                    {
-                      "key": "Vary",
-                      "value": "Accept, origin"
-                    },
-                    {
-                      "key": "Allow",
-                      "value": "POST, OPTIONS"
-                    },
-                    {
-                      "key": "X-Frame-Options",
-                      "value": "DENY"
-                    },
-                    {
-                      "key": "Content-Length",
-                      "value": "33"
-                    },
-                    {
-                      "key": "X-Content-Type-Options",
-                      "value": "nosniff"
-                    },
-                    {
-                      "key": "Referrer-Policy",
-                      "value": "same-origin"
-                    },
-                    {
-                      "key": "Cross-Origin-Opener-Policy",
-                      "value": "same-origin"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n    \"error\": \"Something went wrong!\"\n}"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "change-password",
-          "item": [
-            {
-              "name": "change-password",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/auth/change-password/",
-                  "host": [
-                    "{{url}}"
-                  ],
-                  "path": [
-                    "user",
-                    "auth",
-                    "change-password",
-                    ""
-                  ]
-                }
-              },
-              "response": [
-                {
-                  "name": "success message",
-                  "originalRequest": {
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{url}}/auth/change-password/",
-                      "host": [
-                        "{{url}}"
-                      ],
-                      "path": [
-                        "user",
-                        "auth",
-                        "change-password",
-                        ""
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": null,
-                  "header": [
-                    {
-                      "key": "Date",
-                      "value": "Sat, 16 May 2026 13:24:37 GMT"
-                    },
-                    {
-                      "key": "Server",
-                      "value": "WSGIServer/0.2 CPython/3.9.6"
-                    },
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    },
-                    {
-                      "key": "Vary",
-                      "value": "Accept, origin"
-                    },
-                    {
-                      "key": "Allow",
-                      "value": "GET, POST, HEAD, OPTIONS"
-                    },
-                    {
-                      "key": "X-Frame-Options",
-                      "value": "DENY"
-                    },
-                    {
-                      "key": "Content-Length",
-                      "value": "60"
-                    },
-                    {
-                      "key": "X-Content-Type-Options",
-                      "value": "nosniff"
-                    },
-                    {
-                      "key": "Referrer-Policy",
-                      "value": "same-origin"
-                    },
-                    {
-                      "key": "Cross-Origin-Opener-Policy",
-                      "value": "same-origin"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n    \"message\": \"you can change your password within 15 minutes\"\n}"
-                },
-                {
-                  "name": "hali o'zgartirishga dostup bor",
-                  "originalRequest": {
-                    "method": "GET",
-                    "header": [],
-                    "url": {
-                      "raw": "{{url}}/auth/change-password/",
-                      "host": [
-                        "{{url}}"
-                      ],
-                      "path": [
-                        "user",
-                        "auth",
-                        "change-password",
-                        ""
-                      ]
-                    }
-                  },
-                  "status": "OK",
-                  "code": 200,
-                  "_postman_previewlanguage": null,
-                  "header": [
-                    {
-                      "key": "Date",
-                      "value": "Sat, 16 May 2026 13:24:49 GMT"
-                    },
-                    {
-                      "key": "Server",
-                      "value": "WSGIServer/0.2 CPython/3.9.6"
-                    },
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    },
-                    {
-                      "key": "Vary",
-                      "value": "Accept, origin"
-                    },
-                    {
-                      "key": "Allow",
-                      "value": "GET, POST, HEAD, OPTIONS"
-                    },
-                    {
-                      "key": "X-Frame-Options",
-                      "value": "DENY"
-                    },
-                    {
-                      "key": "Content-Length",
-                      "value": "76"
-                    },
-                    {
-                      "key": "X-Content-Type-Options",
-                      "value": "nosniff"
-                    },
-                    {
-                      "key": "Referrer-Policy",
-                      "value": "same-origin"
-                    },
-                    {
-                      "key": "Cross-Origin-Opener-Policy",
-                      "value": "same-origin"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n    \"message\": \"you can change your password within 2026-05-16 18:39:37.860925\"\n}"
-                }
-              ]
-            },
-            {
-              "name": "set-change-password",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"old_password\": \"#Required123\",\n    \"new_password\": \"#Fintechhub1234\",\n    \"new_password2\": \"#Fintechhub1234\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/auth/change-password/",
-                  "host": [
-                    "{{url}}"
-                  ],
-                  "path": [
-                    "user",
-                    "auth",
-                    "change-password",
-                    ""
-                  ]
-                }
-              },
-              "response": [
-                {
-                  "name": "o'zgarish tugagan bo'lsa",
-                  "originalRequest": {
-                    "method": "POST",
-                    "header": [],
-                    "body": {
-                      "mode": "raw",
-                      "raw": "{\n    \"old_password\": \"#Required123\",\n    \"new_password\": \"#Fintechhub1234\",\n    \"new_password2\": \"#Fintechhub1234\"\n}",
-                      "options": {
-                        "raw": {
-                          "language": "json"
-                        }
-                      }
-                    },
-                    "url": {
-                      "raw": "{{url}}/auth/change-password/",
-                      "host": [
-                        "{{url}}"
-                      ],
-                      "path": [
-                        "user",
-                        "auth",
-                        "change-password",
-                        ""
-                      ]
-                    }
-                  },
-                  "status": "Bad Request",
-                  "code": 400,
-                  "_postman_previewlanguage": null,
-                  "header": [
-                    {
-                      "key": "Date",
-                      "value": "Sat, 16 May 2026 13:24:07 GMT"
-                    },
-                    {
-                      "key": "Server",
-                      "value": "WSGIServer/0.2 CPython/3.9.6"
-                    },
-                    {
-                      "key": "Content-Type",
-                      "value": "application/json"
-                    },
-                    {
-                      "key": "Vary",
-                      "value": "Accept, origin"
-                    },
-                    {
-                      "key": "Allow",
-                      "value": "GET, POST, HEAD, OPTIONS"
-                    },
-                    {
-                      "key": "X-Frame-Options",
-                      "value": "DENY"
-                    },
-                    {
-                      "key": "Content-Length",
-                      "value": "45"
-                    },
-                    {
-                      "key": "X-Content-Type-Options",
-                      "value": "nosniff"
-                    },
-                    {
-                      "key": "Referrer-Policy",
-                      "value": "same-origin"
-                    },
-                    {
-                      "key": "Cross-Origin-Opener-Policy",
-                      "value": "same-origin"
-                    }
-                  ],
-                  "cookie": [],
-                  "body": "{\n    \"error\": \"You can open change request first\"\n}"
-                }
-              ]
-            }
-          ],
-          "auth": {
-            "type": "bearer",
-            "bearer": [
-              {
-                "key": "token",
-                "value": "{{access_token}}",
-                "type": "string"
-              }
-            ]
-          },
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {},
-                "exec": [
-                  ""
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {},
-                "exec": [
-                  ""
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "change-email",
-          "item": [
-            {
-              "name": "change-email",
-              "request": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/auth/change-email/",
-                  "host": [
-                    "{{url}}"
-                  ],
-                  "path": [
-                    "user",
-                    "auth",
-                    "change-email",
-                    ""
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "change-email-2",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"email\": \"lederas633@nriza.com\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/auth/change-email/",
-                  "host": [
-                    "{{url}}"
-                  ],
-                  "path": [
-                    "user",
-                    "auth",
-                    "change-email",
-                    ""
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "verification-code-verifi",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n    \"code\": \"927953\"\n    // \"code\": \"489878\"\n}",
-                  "options": {
-                    "raw": {
-                      "language": "json"
-                    }
-                  }
-                },
-                "url": {
-                  "raw": "{{url}}/auth/change-email/verification/",
-                  "host": [
-                    "{{url}}"
-                  ],
-                  "path": [
-                    "user",
-                    "auth",
-                    "change-email",
-                    "verification",
-                    ""
-                  ]
-                }
-              },
-              "response": []
-            },
-            {
-              "name": "verifications-code-resend",
-              "request": {
-                "method": "POST",
-                "header": [],
-                "url": {
-                  "raw": "{{url}}/auth/change-email/verification/resend/otp/",
-                  "host": [
-                    "{{url}}"
-                  ],
-                  "path": [
-                    "user",
-                    "auth",
-                    "change-email",
-                    "verification",
-                    "resend",
-                    "otp",
-                    ""
-                  ]
-                }
-              },
-              "response": []
-            }
-          ],
-          "auth": {
-            "type": "bearer",
-            "bearer": [
-              {
-                "key": "token",
-                "value": "{{access_token}}",
-                "type": "string"
-              }
-            ]
-          },
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {},
-                "exec": [
-                  ""
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {},
-                "exec": [
-                  ""
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "login",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"email\": \"lederas633@nriza.com\",\n    \"password\": \"Qwerty123#\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{url}}/auth/login/",
-              "host": [
-                "{{url}}"
-              ],
-              "path": [
-                "user",
-                "auth",
-                "login",
-                ""
-              ]
-            }
-          },
-          "response": []
-        },
-        {
           "name": "register",
           "request": {
             "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"first_name\": \"Abror\",\n    \"last_name\": \"Rahmatullayev\",\n    \"email\": \"xetef78552@nriza.com\",\n    \"password\": \"Qwerty123#\",\n    \"password2\": \"Qwerty123#\",\n    // \"otp_type\": \"link\"\n    \"otp_type\": \"otp\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
               }
-            },
+            ],
             "url": {
               "raw": "{{url}}/auth/register/",
               "host": [
@@ -747,77 +37,4198 @@
               ],
               "path": [
                 "auth",
-                "auth",
                 "register",
                 ""
               ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "verifi otp email",
-          "request": {
-            "method": "POST",
-            "header": [],
+            },
+            "description": "Creates an UNVERIFIED account and emails a 6-digit code.\nIn development the message is printed to the runserver console — put the code in the `otp_code` variable.\n\nRegistering an existing email returns 400 and leaves that account untouched.",
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"lederas633@nriza.com\",\n    \"code\": \"626230\"\n}",
+              "raw": "{\n    \"first_name\": \"{{first_name}}\",\n    \"last_name\": \"{{last_name}}\",\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\",\n    \"password2\": \"{{password}}\",\n    \"phone_number\": \"+998901234567\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "verify",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "{{url}}/auth/register/otp/verify/",
+              "raw": "{{url}}/auth/verify/",
               "host": [
                 "{{url}}"
               ],
               "path": [
-                "user",
                 "auth",
-                "register",
-                "otp",
                 "verify",
                 ""
               ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "auth resend code",
-          "request": {
-            "method": "POST",
-            "header": [],
+            },
+            "description": "Single-use code. Activates the account.",
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"mekop60271@hilostar.com\"\n}",
+              "raw": "{\n    \"email\": \"{{email}}\",\n    \"code\": \"{{otp_code}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "resend-verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "{{url}}/auth/resend/otp/",
+              "raw": "{{url}}/auth/resend-verification/",
               "host": [
                 "{{url}}"
               ],
               "path": [
-                "user",
                 "auth",
-                "resend",
-                "otp",
+                "resend-verification",
                 ""
               ]
+            },
+            "description": "Invalidates the previous code and sends a new one. Subject to a cooldown; always returns 200 so accounts cannot be probed.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "verify-link",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/auth/verify-link/{{link_id}}/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "verify-link",
+                "{{link_id}}",
+                ""
+              ]
+            },
+            "description": "Link-based alternative to the 6-digit code.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/auth/login/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "login",
+                ""
+              ]
+            },
+            "description": "Returns an access/refresh pair and stores both in the environment.\n\n401 = wrong credentials, 403 = email not verified.\n\nA guest cart from this session is merged into the account.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"{{email}}\",\n    \"password\": \"{{password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.tokens) {",
+                  "    pm.environment.set('access_token', data.tokens.access);",
+                  "    pm.environment.set('refresh_token', data.tokens.refresh);",
+                  "}",
+                  "pm.test('login succeeded', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/auth/logout/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "auth",
+                "logout",
+                ""
+              ]
+            },
+            "description": "Blacklists the refresh token. The access token remains valid until it expires — the client must discard it.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"refresh\": \"{{refresh_token}}\",\n    \"all_devices\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "token",
+          "item": [
+            {
+              "name": "refresh",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/auth/token/refresh/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "token",
+                    "refresh",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": [],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "const data = pm.response.json();",
+                      "if (data.access) pm.environment.set('access_token', data.access);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "verify",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/auth/token/verify/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "token",
+                    "verify",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"token\": \"{{access_token}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "forgot-password",
+          "item": [
+            {
+              "name": "forgot-password",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/auth/forgot-password/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "forgot-password",
+                    ""
+                  ]
+                },
+                "description": "Always 200, even for unknown addresses.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"{{email}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "verify-reset-code",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/auth/verify-reset-code/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "verify-reset-code",
+                    ""
+                  ]
+                },
+                "description": "Opens a 30-minute window for reset-password.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"{{email}}\",\n    \"code\": \"{{otp_code}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "reset-password",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/auth/reset-password/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "reset-password",
+                    ""
+                  ]
+                },
+                "description": "Consumes the code and revokes every refresh token for the account.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"{{email}}\",\n    \"code\": \"{{otp_code}}\",\n    \"new_password\": \"NewQwerty123#\",\n    \"new_password2\": \"NewQwerty123#\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ],
+      "description": "Registration, verification, login, logout and password reset."
+    },
+    {
+      "name": "catalog",
+      "item": [
+        {
+          "name": "categories",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/categories/?page=1&ordering=sort",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "categories",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "ordering",
+                      "value": "sort"
+                    }
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "tree",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/categories/tree/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "categories",
+                    "tree",
+                    ""
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/categories/{{category_slug}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "categories",
+                    "{{category_slug}}",
+                    ""
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "brands",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/brands/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "brands",
+                    ""
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/brands/{{brand_slug}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "brands",
+                    "{{brand_slug}}",
+                    ""
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "attributes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/catalog/attributes/?category={{category_id}}",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "catalog",
+                "attributes",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "{{category_id}}"
+                }
+              ]
+            },
+            "description": "Filterable attributes, ordered as configured per category.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "products",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/products/?page=1&page_size=20",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "products",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "page_size",
+                      "value": "20"
+                    }
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "search",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/products/?search=drill",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "products",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "search",
+                      "value": "drill"
+                    }
+                  ]
+                },
+                "description": "Matches name, article and description.",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "filter (combined)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/products/?category={{category_id}}&min_price=100&max_price=1000&stock=true&discount=true&featured=true&ordering=-created_at",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "products",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "category",
+                      "value": "{{category_id}}"
+                    },
+                    {
+                      "key": "min_price",
+                      "value": "100"
+                    },
+                    {
+                      "key": "max_price",
+                      "value": "1000"
+                    },
+                    {
+                      "key": "stock",
+                      "value": "true"
+                    },
+                    {
+                      "key": "discount",
+                      "value": "true"
+                    },
+                    {
+                      "key": "featured",
+                      "value": "true"
+                    },
+                    {
+                      "key": "ordering",
+                      "value": "-created_at"
+                    }
+                  ]
+                },
+                "description": "Every filter composes. price_min/price_max are accepted as aliases of min_price/max_price.\n\nordering: price, created_at, name, rating, sold_count, review_count — prefix with '-' to reverse.",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "filter by attribute",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/products/?attribute=power:1500",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "products",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "attribute",
+                      "value": "power:1500"
+                    }
+                  ]
+                },
+                "description": "Repeatable. Repeating one code ORs its values; different codes AND together.",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail (slug)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/products/{{product_slug}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "products",
+                    "{{product_slug}}",
+                    ""
+                  ]
+                },
+                "description": "Images, attributes, stock, rating and review count.",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail (id)",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/products/{{product_id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "products",
+                    "{{product_id}}",
+                    ""
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "related",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/products/{{product_slug}}/related/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "products",
+                    "{{product_slug}}",
+                    "related",
+                    ""
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "reviews",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/products/{{product_id}}/reviews/?rating=5&ordering=-created_at",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "products",
+                    "{{product_id}}",
+                    "reviews",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "rating",
+                      "value": "5"
+                    },
+                    {
+                      "key": "ordering",
+                      "value": "-created_at"
+                    }
+                  ]
+                },
+                "description": "Published reviews only.",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "rating summary",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/products/{{product_id}}/rating/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "products",
+                    "{{product_id}}",
+                    "rating",
+                    ""
+                  ]
+                },
+                "description": "Server-computed average and per-star distribution.",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "comparison",
+          "item": [
+            {
+              "name": "compare (stateless)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/catalog/products/compare/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "products",
+                    "compare",
+                    ""
+                  ]
+                },
+                "description": "2-4 products, no duplicates, nothing persisted. Returns an attribute matrix with shared rows first.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"product_ids\": [\n        1,\n        2\n    ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "saved — list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/compare/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "compare",
+                    ""
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "saved — add",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/compare/{{product_id}}/add/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "compare",
+                    "{{product_id}}",
+                    "add",
+                    ""
+                  ]
+                },
+                "description": "Max 4 products, all from the same category.",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "saved — remove",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/compare/{{product_id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "compare",
+                    "{{product_id}}",
+                    ""
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "saved — clear",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/catalog/compare/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "catalog",
+                    "compare",
+                    ""
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ],
+      "description": "Public catalogue: categories, brands, products, comparison."
+    },
+    {
+      "name": "cart",
+      "item": [
+        {
+          "name": "get cart",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/cart/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "cart",
+                ""
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "add item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/cart/items/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "cart",
+                "items",
+                ""
+              ]
+            },
+            "description": "Quantity is added to any existing line. Price always comes from the database — a price in the body is ignored.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"product_id\": \"{{product_id}}\",\n    \"quantity\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "set quantity",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/cart/items/{{product_id}}/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "cart",
+                "items",
+                "{{product_id}}",
+                ""
+              ]
+            },
+            "description": "quantity 0 removes the line.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"quantity\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "remove item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/cart/items/{{product_id}}/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "cart",
+                "items",
+                "{{product_id}}",
+                ""
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "clear cart",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/cart/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "cart",
+                ""
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "apply promo code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/cart/promo/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "cart",
+                "promo",
+                ""
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"code\": \"{{promo_code}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "remove promo code",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/cart/promo/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "cart",
+                "promo",
+                ""
+              ]
+            },
+            "auth": {
+              "type": "noauth"
             }
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Works for guests (session cookie — keep the Postman cookie jar enabled) and for signed-in users. Logging in merges the guest cart into the account cart."
+    },
+    {
+      "name": "user",
+      "item": [
+        {
+          "name": "profile — get",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/user/profile/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "user",
+                "profile",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "profile — update",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/user/profile/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "user",
+                "profile",
+                ""
+              ]
+            },
+            "description": "is_staff, is_superuser, is_active and email are not writable; sending them has no effect.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"first_name\": \"{{first_name}}\",\n    \"last_name\": \"{{last_name}}\",\n    \"phone_number\": \"+998901112233\",\n    \"language\": \"uz\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "change-password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/user/password/change/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "user",
+                "password",
+                "change",
+                ""
+              ]
+            },
+            "description": "Revokes every refresh token — log in again afterwards.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"old_password\": \"{{password}}\",\n    \"new_password\": \"NewQwerty123#\",\n    \"new_password2\": \"NewQwerty123#\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "addresses",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/user/addresses/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "addresses",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/user/addresses/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "addresses",
+                    ""
+                  ]
+                },
+                "description": "The owner comes from the token; a `user` field is ignored.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"company_name\": \"Acme LLC\",\n    \"region\": \"Toshkent\",\n    \"city\": \"Toshkent\",\n    \"street\": \"Amir Temur\",\n    \"house\": \"12A\",\n    \"phone\": \"+998901234567\",\n    \"is_default\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/user/addresses/{{address_id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "addresses",
+                    "{{address_id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/user/addresses/{{address_id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "addresses",
+                    "{{address_id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"city\": \"Samarqand\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "set-default",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/user/addresses/{{address_id}}/set-default/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "addresses",
+                    "{{address_id}}",
+                    "set-default",
+                    ""
+                  ]
+                },
+                "description": "Demotes every other address; only one default per user."
+              },
+              "response": []
+            },
+            {
+              "name": "delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/user/addresses/{{address_id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "addresses",
+                    "{{address_id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "wishlist",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/user/wishlist/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "wishlist",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "add",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/user/wishlist/add/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "wishlist",
+                    "add",
+                    ""
+                  ]
+                },
+                "description": "Duplicates return 400 (unique per user + product).",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"product_id\": \"{{product_id}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "status",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/user/wishlist/{{product_id}}/status/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "wishlist",
+                    "{{product_id}}",
+                    "status",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "remove",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/user/wishlist/{{product_id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "wishlist",
+                    "{{product_id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "orders",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/user/orders/?ordering=-created_at",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "orders",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "ordering",
+                      "value": "-created_at"
+                    }
+                  ]
+                },
+                "description": "Filter with ?status=, ?delivery_type=, ?payment_method=."
+              },
+              "response": []
+            },
+            {
+              "name": "create (checkout)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/user/orders/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "orders",
+                    ""
+                  ]
+                },
+                "description": "Built from the server-side cart inside one transaction: stock is locked and re-checked, prices re-read, snapshots written, stock decremented and the cart emptied.\n\ndelivery_type: delivery | pickup\npayment_method: card | on_delivery | invoice",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"address_id\": \"{{address_id}}\",\n    \"delivery_type\": \"delivery\",\n    \"payment_method\": \"on_delivery\",\n    \"city_id\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/user/orders/{{order_id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "orders",
+                    "{{order_id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "cancel",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/user/orders/{{order_id}}/cancel/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "orders",
+                    "{{order_id}}",
+                    "cancel",
+                    ""
+                  ]
+                },
+                "description": "Allowed while new / awaiting_payment / processing. Returns the reserved stock."
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "reviews",
+          "item": [
+            {
+              "name": "my reviews",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/user/reviews/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "reviews",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/user/reviews/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "reviews",
+                    ""
+                  ]
+                },
+                "description": "403 unless you have purchased the product. New reviews start unpublished and await moderation.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"product\": \"{{product_id}}\",\n    \"rating\": 5,\n    \"comment\": \"Juda sifatli mahsulot\",\n    \"author_name\": \"{{first_name}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update own",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/user/reviews/{{review_id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "reviews",
+                    "{{review_id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"rating\": 4,\n    \"comment\": \"Yangilangan izoh\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete own",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/user/reviews/{{review_id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "user",
+                    "reviews",
+                    "{{review_id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ],
+      "description": "The signed-in user's own resources. Everything is scoped to the token — another account's id returns 404, never data."
+    },
+    {
+      "name": "content",
+      "item": [
+        {
+          "name": "home",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/home/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "home",
+                ""
+              ]
+            },
+            "description": "Aggregated landing-page payload: banners, categories, popular, best-selling, new, discounted and featured products, promotions and news. Redis-cached.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "news",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/news/?type=news&ordering=-published_at",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "news",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "type",
+                      "value": "news"
+                    },
+                    {
+                      "key": "ordering",
+                      "value": "-published_at"
+                    }
+                  ]
+                },
+                "description": "Published items only.",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/news/{{article_slug}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "news",
+                    "{{article_slug}}",
+                    ""
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "promotions",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/promotions/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "promotions",
+                    ""
+                  ]
+                },
+                "description": "Expired promotions are excluded.",
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/promotions/{{promotion_slug}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "promotions",
+                    "{{promotion_slug}}",
+                    ""
+                  ]
+                },
+                "auth": {
+                  "type": "noauth"
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "banners",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/banners/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "banners",
+                ""
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "faq",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/faq/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "faq",
+                ""
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "static page",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/pages/{{page_slug}}/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "pages",
+                "{{page_slug}}",
+                ""
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "submit lead",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/leads/",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "leads",
+                ""
+              ]
+            },
+            "description": "Write-only. type: callback | price_request | consultation | one_click. Consent is mandatory; leads are never readable publicly.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"type\": \"callback\",\n    \"name\": \"Ali Valiyev\",\n    \"phone\": \"+998901234567\",\n    \"product\": null,\n    \"consent\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Public content and site forms."
+    },
+    {
+      "name": "admin",
+      "item": [
+        {
+          "name": "categories",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/categories/?page=1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "categories",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/categories/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "categories",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/categories/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "categories",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/categories/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "categories",
+                    "{{id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/categories/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "categories",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "brands",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/brands/?page=1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "brands",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/brands/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "brands",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/brands/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "brands",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/brands/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "brands",
+                    "{{id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/brands/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "brands",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "products",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/products/?page=1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "products",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/products/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "products",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/products/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "products",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/products/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "products",
+                    "{{id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/products/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "products",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "product-images",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/product-images/?page=1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "product-images",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/product-images/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "product-images",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/product-images/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "product-images",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/product-images/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "product-images",
+                    "{{id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/product-images/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "product-images",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "stock",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/stock/?page=1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "stock",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/stock/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "stock",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/stock/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "stock",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/stock/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "stock",
+                    "{{id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/stock/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "stock",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "reviews",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/reviews/?page=1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "reviews",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/reviews/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "reviews",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/reviews/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "reviews",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/reviews/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "reviews",
+                    "{{id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/reviews/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "reviews",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "leads",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/leads/?page=1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "leads",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/leads/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "leads",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/leads/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "leads",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/leads/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "leads",
+                    "{{id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/leads/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "leads",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "articles",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/articles/?page=1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "articles",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/articles/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "articles",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/articles/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "articles",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/articles/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "articles",
+                    "{{id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/articles/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "articles",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "promotions",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/promotions/?page=1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "promotions",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/promotions/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "promotions",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/promotions/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "promotions",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/promotions/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "promotions",
+                    "{{id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/promotions/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "promotions",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "banners",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/banners/?page=1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "banners",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/banners/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "banners",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/banners/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "banners",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/banners/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "banners",
+                    "{{id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/banners/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "banners",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "faq",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/faq/?page=1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "faq",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/faq/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "faq",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/faq/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "faq",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/faq/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "faq",
+                    "{{id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/faq/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "faq",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "pages",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/pages/?page=1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "pages",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/pages/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "pages",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/pages/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "pages",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/pages/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "pages",
+                    "{{id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/pages/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "pages",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "promo-codes",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/promo-codes/?page=1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "promo-codes",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/promo-codes/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "promo-codes",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/promo-codes/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "promo-codes",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/promo-codes/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "promo-codes",
+                    "{{id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/promo-codes/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "promo-codes",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "discount-tiers",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/discount-tiers/?page=1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "discount-tiers",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/discount-tiers/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "discount-tiers",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/discount-tiers/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "discount-tiers",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/discount-tiers/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "discount-tiers",
+                    "{{id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "delete",
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/discount-tiers/{{id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "discount-tiers",
+                    "{{id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "orders",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/orders/?status=processing",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "orders",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "processing"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/orders/{{order_id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "orders",
+                    "{{order_id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "set-status",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/orders/{{order_id}}/set-status/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "orders",
+                    "{{order_id}}",
+                    "set-status",
+                    ""
+                  ]
+                },
+                "description": "new | awaiting_payment | processing | assembled | shipped | ready_for_pickup | completed | cancelled | refunded",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"status\": \"shipped\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ],
+          "description": "Orders are never created or deleted here — only moved in status."
+        },
+        {
+          "name": "users",
+          "item": [
+            {
+              "name": "list",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/users/?is_active=true",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    ""
+                  ],
+                  "query": [
+                    {
+                      "key": "is_active",
+                      "value": "true"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "detail",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{url}}/admin/users/{{user_id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{user_id}}",
+                    ""
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "update",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/admin/users/{{user_id}}/",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "{{user_id}}",
+                    ""
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"is_active\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ],
+      "description": "Staff-only. Log in as a user with is_staff=True (`python manage.py createsuperuser`); a normal account gets 403."
+    },
+    {
+      "name": "ops",
+      "item": [
+        {
+          "name": "health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/healthz/",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "healthz",
+                ""
+              ]
+            },
+            "description": "Database and cache reachability. 503 when degraded.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "openapi schema",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/schema/",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "schema",
+                ""
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "swagger ui",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/docs/",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "docs",
+                ""
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "redoc",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{host}}/api/redoc/",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "api",
+                "redoc",
+                ""
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Uses {{host}} (no /api/v1 prefix)."
     }
   ]
-  
 }

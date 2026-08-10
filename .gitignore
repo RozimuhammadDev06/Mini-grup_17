@@ -216,3 +216,35 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ============================================================
+# Project-specific (stroyopttorg-backend)
+# ============================================================
+
+# Django media uploads — MEDIA_ROOT = src/media
+# (product/brand/banner/article images land here)
+media/
+
+# collectstatic output (STATIC_ROOT). Source assets live in src/static and
+# stay tracked; only the generated copy is ignored.
+staticfiles/
+
+# Env variants. Plain `.env` is ignored higher up, but that pattern is exact
+# and does not cover .env.local / .env.production / .env.prod.
+.env.*
+!.env.example
+
+# Local and test databases (test_db.sqlite3 survives `test --keepdb`)
+*.sqlite3
+*.sqlite3-journal
+
+# Editors
+.idea/
+.vscode/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Local database backups
+db.sqlite3.bak-*
