@@ -159,6 +159,17 @@ def _refresh_stock_statuses(product_ids: Iterable[int]) -> None:
             stock.save(update_fields=["status"])
 
 
+def restock_order(order: Order) -> None:
+    """Return an order's reserved stock. Used by cancellation and refunds."""
+    product_ids = []
+    for item in order.items.select_related("product"):
+        if item.product_id:
+            Stock.objects.filter(product_id=item.product_id).update(
+                quantity=F("quantity") + item.quantity)
+            product_ids.append(item.product_id)
+    _refresh_stock_statuses(product_ids)
+
+
 @transaction.atomic
 def cancel_order(order: Order) -> Order:
     """Customer-initiated cancellation; returns the reserved stock."""
@@ -167,13 +178,7 @@ def cancel_order(order: Order) -> Order:
             f"An order in status '{order.get_status_display()}' can no longer "
             f"be cancelled."]})
 
-    for item in order.items.select_related("product"):
-        if item.product_id:
-            Stock.objects.filter(product_id=item.product_id).update(
-                quantity=F("quantity") + item.quantity)
-    _refresh_stock_statuses(
-        [i.product_id for i in order.items.all() if i.product_id])
-
+    restock_order(order)
     order.status = Order.Status.CANCELLED
     order.save(update_fields=["status"])
     return order

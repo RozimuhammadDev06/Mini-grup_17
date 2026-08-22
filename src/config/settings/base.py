@@ -374,6 +374,34 @@ OTP_RESEND_COOLDOWN_SECONDS = env.int(
 
 
 # ---------------------------------------------------------------------------
+# Fintechhub payment gateway
+# ---------------------------------------------------------------------------
+# Merchant API  : this backend -> gateway (signed `Auth` header)
+# Shop API      : gateway -> this backend (md5-signed prepare/complete callbacks)
+#
+# The merchant secret signs outbound requests; the *service* secret validates
+# inbound callbacks. They are different values — do not swap them.
+
+FINTECHHUB_BASE_URL = env_str(
+    "FINTECHHUB_BASE_URL", "http://159.223.145.49:3077")
+FINTECHHUB_MERCHANT_USER_ID = env_str("FINTECHHUB_MERCHANT_USER_ID")
+FINTECHHUB_MERCHANT_SECRET_KEY = env_str("FINTECHHUB_MERCHANT_SECRET_KEY")
+FINTECHHUB_SERVICE_ID = env.int("FINTECHHUB_SERVICE_ID", default=1)
+FINTECHHUB_SERVICE_SECRET_KEY = env_str("FINTECHHUB_SERVICE_SECRET_KEY")
+FINTECHHUB_RETURN_URL = env_str("FINTECHHUB_RETURN_URL", f"{BASE_URL}/orders/")
+FINTECHHUB_TIMEOUT = env.int("FINTECHHUB_TIMEOUT", default=15)
+# Callback signatures are only skipped when no service secret is configured,
+# which must never be the case in production.
+FINTECHHUB_VERIFY_SIGNATURE = env.bool(
+    "FINTECHHUB_VERIFY_SIGNATURE", default=True)
+# Card tokenization accepts a raw PAN and therefore puts this deployment in
+# PCI-DSS scope. It is opt-in: the hosted /payments/init/ flow is preferred
+# and keeps card data off this backend entirely.
+FINTECHHUB_ENABLE_CARD_TOKENIZATION = env.bool(
+    "FINTECHHUB_ENABLE_CARD_TOKENIZATION", default=False)
+
+
+# ---------------------------------------------------------------------------
 # Security defaults (production tightens these further)
 # ---------------------------------------------------------------------------
 

@@ -36,3 +36,14 @@ CELERY_TASK_EAGER_PROPAGATES = True
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 
 MEDIA_ROOT = "/tmp/stroyopttorg-test-media"
+
+# Payment gateway test fixtures. These are NOT credentials — they exist so the
+# payments configuration check passes under DEBUG=False and so signature tests
+# have a deterministic secret. Real values come from the environment.
+FINTECHHUB_MERCHANT_USER_ID = "TEST-MERCHANT"
+FINTECHHUB_MERCHANT_SECRET_KEY = "test-merchant-secret"
+FINTECHHUB_SERVICE_SECRET_KEY = "test-service-secret"
+FINTECHHUB_SERVICE_ID = 1
+FINTECHHUB_VERIFY_SIGNATURE = True
+# Off by default here too, so the default PCI posture is what gets tested.
+FINTECHHUB_ENABLE_CARD_TOKENIZATION = False
