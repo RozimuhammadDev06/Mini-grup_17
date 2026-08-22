@@ -629,3 +629,104 @@ class CallbackHardeningTests(TestCase):
                          "stock must be returned exactly once")
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, Order.Status.REFUNDED)
+
+
+@override_settings(FINTECHHUB_MERCHANT_USER_ID="MU-TEST",
+                   FINTECHHUB_MERCHANT_SECRET_KEY="merchant-secret")
+class GatewayProxyTests(TestCase):
+    """Signed passthrough: staff-only, allowlisted, argument-validated."""
+
+    URL = "/api/v1/payments/gateway/"
+
+    def setUp(self):
+        self.staff = create_user(email="ops@example.com", staff=True)
+        self.user = create_user(email="joe@example.com")
+        self.client = auth_client(APIClient(), self.staff)
+
+    def test_requires_staff(self):
+        self.assertEqual(
+            APIClient().post(self.URL, {"operation": "payment_status"},
+                             format="json").status_code,
+            status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(
+            auth_client(APIClient(), self.user).post(
+                self.URL, {"operation": "payment_status",
+                           "payload": {"payment_id": 1}},
+                format="json").status_code,
+            status.HTTP_403_FORBIDDEN)
+
+    def test_catalogue_lists_operations(self):
+        response = self.client.get(self.URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        names = {o["operation"] for o in response.data["operations"]}
+        self.assertIn("pay_init", names)
+        self.assertIn("refund", names)
+
+    @patch("apps.payments.gateway.FintechhubClient.payment_status")
+    def test_forwards_and_returns_the_gateway_response(self, stub):
+        stub.return_value = {"error_code": 0, "payment_status": 3}
+        response = self.client.post(
+            self.URL, {"operation": "payment_status",
+                       "payload": {"payment_id": 34}}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data["ok"])
+        self.assertEqual(response.data["response"]["payment_status"], 3)
+        stub.assert_called_once_with(34)
+
+    @patch("apps.payments.gateway.FintechhubClient.refund")
+    def test_rejects_unknown_arguments(self, stub):
+        response = self.client.post(
+            self.URL, {"operation": "refund",
+                       "payload": {"payment_id": 1, "amount": "0.01"}},
+            format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        stub.assert_not_called()
+
+    @patch("apps.payments.gateway.FintechhubClient.pay_init")
+    def test_rejects_missing_required_arguments(self, stub):
+        response = self.client.post(
+            self.URL, {"operation": "pay_init",
+                       "payload": {"amount": "1.00"}}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        stub.assert_not_called()
+
+    def test_rejects_an_unlisted_operation(self):
+        """No arbitrary path passthrough — the allowlist is the boundary."""
+        response = self.client.post(
+            self.URL, {"operation": "delete_everything"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @patch("apps.payments.gateway.FintechhubClient.card_token_request")
+    def test_card_operations_blocked_while_pci_flag_is_off(self, stub):
+        response = self.client.post(
+            self.URL,
+            {"operation": "card_token_request",
+             "payload": {"card_number": "1205200812345678",
+                         "expire_date": "1228"}}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        stub.assert_not_called()
+
+    @patch("apps.payments.gateway.FintechhubClient.payment_status")
+    def test_gateway_failure_is_reported_not_raised(self, stub):
+        stub.side_effect = GatewayError("Payment not found.", status_code=404)
+        response = self.client.post(
+            self.URL, {"operation": "payment_status",
+                       "payload": {"payment_id": 9}}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_502_BAD_GATEWAY)
+        self.assertFalse(response.data["ok"])
+        self.assertEqual(response.data["http_status"], 404)
+
+    def test_auth_header_matches_the_documented_formula(self):
+        response = self.client.get("/api/v1/payments/gateway/auth-header/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        user_id, digest, timestamp = response.data["auth_header"].split(":")
+        self.assertEqual(user_id, "MU-TEST")
+        self.assertEqual(
+            digest,
+            hashlib.sha1(f"{timestamp}merchant-secret".encode()).hexdigest())
+
+    def test_auth_header_requires_staff(self):
+        self.assertEqual(
+            auth_client(APIClient(), self.user).get(
+                "/api/v1/payments/gateway/auth-header/").status_code,
+            status.HTTP_403_FORBIDDEN)
