@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (CardTokenDeleteView, CardTokenPaymentView,
+                    GatewayAuthHeaderView, GatewayProxyView,
                     CardTokenRequestView, CardTokenVerifyView,
                     CompleteCallbackView, InvoiceCreateView,
                     InvoiceStatusView, OrderPaymentsView, PaymentInitView,
@@ -28,6 +29,11 @@ urlpatterns = [
     path("invoices/", InvoiceCreateView.as_view(), name="invoice-create"),
     path("invoices/<int:invoice_id>/", InvoiceStatusView.as_view(),
          name="invoice-status"),
+
+    # Signed passthrough to the gateway (staff only).
+    path("gateway/", GatewayProxyView.as_view(), name="gateway"),
+    path("gateway/auth-header/", GatewayAuthHeaderView.as_view(),
+         name="gateway-auth-header"),
 
     # Reconciliation.
     path("orders/<int:order_id>/", OrderPaymentsView.as_view(),

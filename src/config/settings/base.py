@@ -131,9 +131,11 @@ def _db_value(key: str, legacy_key: str, default: str = "") -> str:
     return env_str(key) or env_str(legacy_key, default)
 
 
-DB_TYPE = env_str("DB_TYPE", "psql")
-_USE_POSTGRES = DB_TYPE in ("psql", "postgres", "postgresql") or bool(
-    env_str("POSTGRES_DB"))
+# Default to SQLite so a fresh clone runs with no services installed.
+# Docker compose sets DB_TYPE=psql explicitly, and setting POSTGRES_HOST to
+# anything other than localhost also opts in.
+DB_TYPE = env_str("DB_TYPE", "sqlite")
+_USE_POSTGRES = DB_TYPE in ("psql", "postgres", "postgresql")
 
 if _USE_POSTGRES:
     DATABASES = {
