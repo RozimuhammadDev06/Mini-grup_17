@@ -9,6 +9,7 @@ picks ``development`` or ``production``.
 """
 
 import os
+import re
 from datetime import timedelta
 
 import environ
@@ -164,33 +165,58 @@ else:
 # ---------------------------------------------------------------------------
 
 def _build_redis_url() -> str:
-    """Assemble a Redis URL from REDIS_URL, or from REDIS_HOST/PORT/PASSWORD."""
+    """
+    Assemble a Redis URL from REDIS_URL, or from REDIS_HOST/PORT/PASSWORD.
+
+    Returns "" when nothing is configured. There is deliberately no localhost
+    default: a silent fallback to 127.0.0.1 is what made production raise
+    ``Error 111 connecting to localhost:6379`` on every throttled request.
+    """
     url = env_str("REDIS_URL")
     if url:
         return url
     host = env_str("REDIS_HOST")
     if not host:
         return ""
+    scheme = "rediss" if env.bool("REDIS_USE_TLS", default=False) else "redis"
     port = env_str("REDIS_PORT", "6379")
     password = env_str("REDIS_PASSWORD")
     db = env_str("REDIS_DB", "0")
     credentials = f":{password}@" if password else ""
-    return f"redis://{credentials}{host}:{port}/{db}"
+    return f"{scheme}://{credentials}{host}:{port}/{db}"
+
+
+def mask_url(url: str) -> str:
+    """Hide the password in a connection URL before it reaches a log."""
+    if not url:
+        return "(not configured)"
+    return re.sub(r"://([^:/@]*):([^@]*)@", r"://\1:***@", url)
 
 
 REDIS_URL = _build_redis_url()
+REDIS_IS_TLS = REDIS_URL.startswith("rediss://")
+
+# Managed Redis providers differ: some present a public CA (required), others
+# a self-signed certificate (none). Configurable rather than guessed.
+REDIS_SSL_CERT_REQS = env_str("REDIS_SSL_CERT_REQS", "required")
 
 if REDIS_URL:
+    _redis_options = {}
+    if REDIS_IS_TLS:
+        # django-redis/redis-py honours ssl_cert_reqs from the connection
+        # options; a rediss:// URL alone does not set the verification mode.
+        _redis_options["ssl_cert_reqs"] = REDIS_SSL_CERT_REQS
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.redis.RedisCache",
             "LOCATION": REDIS_URL,
             "KEY_PREFIX": env_str("CACHE_KEY_PREFIX", "stroyopttorg"),
+            **({"OPTIONS": _redis_options} if _redis_options else {}),
         }
     }
 else:
-    # No Redis configured (plain local run) — an in-process cache keeps every
-    # cache-aware code path working without a broker.
+    # No Redis configured. Fine for local development and tests; production
+    # refuses to start in this state unless REDIS_REQUIRED is explicitly off.
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
@@ -202,10 +228,17 @@ CACHE_TTL_SHORT = env.int("CACHE_TTL_SHORT", default=60)
 CACHE_TTL_MEDIUM = env.int("CACHE_TTL_MEDIUM", default=300)
 CACHE_TTL_LONG = env.int("CACHE_TTL_LONG", default=3600)
 
-CELERY_BROKER_URL = env_str(
-    "CELERY_BROKER_URL", REDIS_URL or "redis://localhost:6379/0")
-CELERY_RESULT_BACKEND = env_str(
-    "CELERY_RESULT_BACKEND", CELERY_BROKER_URL)
+# Celery: an explicit broker wins, otherwise Redis, otherwise nothing. An
+# empty broker makes dispatch() fall back to sending inline rather than
+# hanging on a connection to a host that was never configured.
+CELERY_BROKER_URL = env_str("CELERY_BROKER_URL") or REDIS_URL
+CELERY_RESULT_BACKEND = env_str("CELERY_RESULT_BACKEND") or CELERY_BROKER_URL
+
+if CELERY_BROKER_URL.startswith("rediss://"):
+    CELERY_BROKER_USE_SSL = {"ssl_cert_reqs": REDIS_SSL_CERT_REQS}
+if CELERY_RESULT_BACKEND.startswith("rediss://"):
+    CELERY_REDIS_BACKEND_USE_SSL = {"ssl_cert_reqs": REDIS_SSL_CERT_REQS}
+
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"

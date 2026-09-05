@@ -6,12 +6,33 @@ also run behind a TLS-terminating proxy or in a staging environment without
 HTTPS, without editing code.
 """
 
+from django.core.exceptions import ImproperlyConfigured
+
 from .base import *  # noqa: F401,F403
-from .base import env, env_str
+from .base import REDIS_URL, env, env_str
 
 DEBUG = False
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
+
+# ---------------------------------------------------------------------------
+# Redis is mandatory in production
+# ---------------------------------------------------------------------------
+# DRF throttling writes to the cache on *every* request, so a cache pointed at
+# a Redis that is not there turns every endpoint into a 500. Refuse to start
+# rather than fall back to localhost or to a per-process LocMemCache that would
+# silently break rate limiting and the home-page cache across workers.
+REDIS_REQUIRED = env.bool("REDIS_REQUIRED", default=True)
+
+if REDIS_REQUIRED and not REDIS_URL:
+    raise ImproperlyConfigured(
+        "REDIS_URL is not configured. Production uses Redis for the cache, "
+        "DRF throttling and the Celery broker.\n"
+        "Set REDIS_URL (for example rediss://default:<password>@<host>:<port>/0) "
+        "in the deployment environment.\n"
+        "To run without Redis on purpose — accepting per-process throttling "
+        "and no shared cache — set REDIS_REQUIRED=False explicitly."
+    )
 
 EMAIL_BACKEND = env_str(
     "EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
