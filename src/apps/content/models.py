@@ -1,5 +1,9 @@
 from django.db import models
 
+from apps.utils.validators import (validate_lowercase_slug,
+                                   validate_not_placeholder,
+                                   validate_safe_link)
+
 
 class Article(models.Model):
     class Type(models.TextChoices):
@@ -9,8 +13,10 @@ class Article(models.Model):
 
     type = models.CharField(
         max_length=20, choices=Type.choices, default=Type.NEWS)
-    title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True)
+    title = models.CharField(
+        max_length=255, validators=[validate_not_placeholder])
+    slug = models.SlugField(
+        max_length=255, unique=True, validators=[validate_lowercase_slug])
     body = models.TextField(blank=True)
     image = models.ImageField(upload_to='articles/', null=True, blank=True)
     published_at = models.DateTimeField(null=True, blank=True)
@@ -29,8 +35,10 @@ class Article(models.Model):
 
 
 class Promotion(models.Model):
-    title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True)
+    title = models.CharField(
+        max_length=255, validators=[validate_not_placeholder])
+    slug = models.SlugField(
+        max_length=255, unique=True, validators=[validate_lowercase_slug])
     body = models.TextField(blank=True)
     image = models.ImageField(upload_to='promotions/', null=True, blank=True)
     discount_label = models.CharField(max_length=50, blank=True)
@@ -49,9 +57,12 @@ class Promotion(models.Model):
 
 
 class Banner(models.Model):
-    title = models.CharField(max_length=255, blank=True)
+    title = models.CharField(
+        max_length=255, blank=True, validators=[validate_not_placeholder])
     image = models.ImageField(upload_to='banners/')
-    link = models.CharField(max_length=500, blank=True)
+    link = models.CharField(
+        max_length=500, blank=True, validators=[validate_safe_link],
+        help_text="A site path such as '/catalog/' or a full http(s) URL.")
     sort = models.IntegerField(default=0)
 
     class Meta:
@@ -64,8 +75,8 @@ class Banner(models.Model):
 
 
 class Faq(models.Model):
-    question = models.TextField()
-    answer = models.TextField()
+    question = models.TextField(validators=[validate_not_placeholder])
+    answer = models.TextField(validators=[validate_not_placeholder])
     sort = models.IntegerField(default=0)
 
     class Meta:

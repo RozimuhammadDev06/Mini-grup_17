@@ -6,7 +6,7 @@ slow and non-deterministic without exercising any application logic.
 """
 
 from .development import *  # noqa: F401,F403
-from .development import REST_FRAMEWORK
+from .development import REST_FRAMEWORK, env_str
 
 DEBUG = False
 
@@ -16,6 +16,30 @@ DATABASES = {
         "NAME": ":memory:",
     }
 }
+
+# Opt-in PostgreSQL run for the tests that need real row locks — SQLite
+# ignores SELECT ... FOR UPDATE, so the concurrency tests skip there:
+#
+#   TEST_DB_TYPE=psql python manage.py test --settings=config.settings.test
+#
+# Django creates and drops only the throwaway TEST NAME database below.
+if env_str("TEST_DB_TYPE") in ("psql", "postgres", "postgresql"):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": env_str("TEST_POSTGRES_DB", "postgres"),
+            "USER": env_str("TEST_POSTGRES_USER")
+            or env_str("POSTGRES_USER") or env_str("DB_USER"),
+            "PASSWORD": env_str("TEST_POSTGRES_PASSWORD")
+            or env_str("POSTGRES_PASSWORD") or env_str("DB_PASSWORD"),
+            "HOST": env_str("TEST_POSTGRES_HOST")
+            or env_str("POSTGRES_HOST") or env_str("DB_HOST", "localhost"),
+            "PORT": env_str("TEST_POSTGRES_PORT")
+            or env_str("POSTGRES_PORT") or env_str("DB_PORT", "5432"),
+            "TEST": {"NAME": env_str("TEST_POSTGRES_TEST_DB",
+                                     "test_stroyopttorg")},
+        }
+    }
 
 CACHES = {
     "default": {
