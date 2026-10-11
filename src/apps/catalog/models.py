@@ -1,5 +1,8 @@
 from django.db import models
 
+from apps.utils.validators import (validate_lowercase_slug,
+                                   validate_not_placeholder)
+
 
 class Attribute(models.Model):
     """Characteristic a product can be filtered / compared by ("Power, W")."""
@@ -50,8 +53,10 @@ class Category(models.Model):
     parent = models.ForeignKey(
         'self', on_delete=models.CASCADE, null=True, blank=True,
         related_name='children')
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=200, unique=True)
+    name = models.CharField(
+        max_length=200, validators=[validate_not_placeholder])
+    slug = models.SlugField(
+        max_length=200, unique=True, validators=[validate_lowercase_slug])
     sort = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
 
@@ -84,8 +89,10 @@ class CategoryAttribute(models.Model):
 
 
 class Brand(models.Model):
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=200, unique=True)
+    name = models.CharField(
+        max_length=200, validators=[validate_not_placeholder])
+    slug = models.SlugField(
+        max_length=200, unique=True, validators=[validate_lowercase_slug])
     logo = models.ImageField(upload_to='brands/', null=True, blank=True)
 
     class Meta:
@@ -103,8 +110,10 @@ class Product(models.Model):
     brand = models.ForeignKey(
         Brand, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='products')
-    name = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True)
+    name = models.CharField(
+        max_length=255, validators=[validate_not_placeholder])
+    slug = models.SlugField(
+        max_length=255, unique=True, validators=[validate_lowercase_slug])
     article = models.CharField(max_length=64, unique=True)
     price = models.DecimalField(max_digits=12, decimal_places=2)
     old_price = models.DecimalField(
@@ -176,7 +185,17 @@ class ProductAttribute(models.Model):
 
 
 class Stock(models.Model):
-    """Quantity synced from 1C. One row per product."""
+    """
+    Units on hand, synced from 1C. One row per product.
+
+    ``quantity`` is the authoritative count of units that can be sold: the
+    catalogue's ``in_stock`` filter, cart validation and checkout all read
+    it, and a product without a row has nothing to sell. Runtime changes go
+    through ``apps.catalog.services``; the database refuses negative values.
+
+    ``status`` is display data derived from ``quantity`` on every save, so it
+    can never contradict the number next to it.
+    """
 
     class Status(models.TextChoices):
         IN_STOCK = 'in_stock', 'In stock'
@@ -184,16 +203,55 @@ class Stock(models.Model):
         OUT_OF_STOCK = 'out_of_stock', 'Out of stock'
         ON_ORDER = 'on_order', 'On order'
 
+    # At or below this many units the product is shown as "low stock".
+    LOW_STOCK_THRESHOLD = 5
+
     product = models.OneToOneField(
         Product, on_delete=models.CASCADE, related_name='stock')
     quantity = models.IntegerField(default=0)
     status = models.CharField(
-        max_length=20, choices=Status.choices, default=Status.OUT_OF_STOCK)
+        max_length=20, choices=Status.choices, default=Status.OUT_OF_STOCK,
+        help_text=("Derived from quantity on save. Only 'On order' can be "
+                   "chosen manually; it applies while quantity is 0."))
     synced_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Stock'
         verbose_name_plural = 'Stocks'
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(quantity__gte=0),
+                name='catalog_stock_quantity_non_negative',
+                violation_error_message='Stock quantity cannot be negative.',
+            ),
+        ]
 
     def __str__(self):
         return f'{self.product} | {self.quantity}'
+
+    @classmethod
+    def status_for(cls, quantity, current=None):
+        """The status a row holding ``quantity`` units must display."""
+        if quantity <= 0:
+            # "On order" marks an item that can be procured on request — a
+            # merchandising decision the quantity cannot express — so it
+            # survives for as long as nothing is on hand.
+            if current == cls.Status.ON_ORDER:
+                return cls.Status.ON_ORDER
+            return cls.Status.OUT_OF_STOCK
+        if quantity <= cls.LOW_STOCK_THRESHOLD:
+            return cls.Status.LOW_STOCK
+        return cls.Status.IN_STOCK
+
+    @property
+    def effective_status(self):
+        """Status consistent with ``quantity``, even for rows saved before
+        the status was derived automatically."""
+        return self.status_for(self.quantity, self.status)
+
+    def save(self, *args, **kwargs):
+        self.status = self.status_for(self.quantity, self.status)
+        update_fields = kwargs.get('update_fields')
+        if update_fields is not None and 'quantity' in update_fields:
+            kwargs['update_fields'] = {*update_fields, 'status'}
+        super().save(*args, **kwargs)
