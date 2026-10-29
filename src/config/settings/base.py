@@ -250,6 +250,24 @@ CELERY_TASK_EAGER_PROPAGATES = True
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_TIMEZONE = env_str("TIME_ZONE", "Asia/Tashkent")
 
+# Periodic jobs, run by the celery_beat service.
+CELERY_BEAT_SCHEDULE = {
+    "release-expired-orders": {
+        "task": "orders.release_expired_orders",
+        "schedule": 300.0,  # every 5 minutes
+    },
+}
+
+
+# ---------------------------------------------------------------------------
+# Orders
+# ---------------------------------------------------------------------------
+
+# A card order holds its stock from checkout. Left unpaid this long, it is
+# cancelled and the stock returned, so an abandoned checkout cannot keep
+# units off sale for ever.
+UNPAID_ORDER_TTL_MINUTES = env.int("UNPAID_ORDER_TTL_MINUTES", default=60)
+
 
 # ---------------------------------------------------------------------------
 # Authentication / passwords
@@ -321,6 +339,8 @@ REST_FRAMEWORK = {
         "register": env_str("THROTTLE_REGISTER", "10/hour"),
         "otp": env_str("THROTTLE_OTP", "5/hour"),
         "password_reset": env_str("THROTTLE_PASSWORD_RESET", "5/hour"),
+        # Guest checkout reserves stock without an account behind it.
+        "checkout": env_str("THROTTLE_CHECKOUT", "20/hour"),
     },
     "EXCEPTION_HANDLER": "api.exceptions.api_exception_handler",
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
@@ -335,11 +355,16 @@ SPECTACULAR_SETTINGS = {
     "COMPONENT_SPLIT_REQUEST": True,
     "SORT_OPERATIONS": False,
     "TAGS": [
-        {"name": "auth", "description": "Registration, verification, login, "
-                                        "logout and password reset."},
-        {"name": "user", "description": "The signed-in user's own profile, "
-                                        "addresses, orders, wishlist and "
-                                        "reviews."},
+        # Disabled: the site runs without login and registration.
+        # {"name": "auth", "description": "Registration, verification, login, "
+        #                                 "logout and password reset."},
+        # {"name": "user", "description": "The signed-in user's own profile, "
+        #                                 "addresses, orders, wishlist and "
+        #                                 "reviews."},
+        {"name": "orders", "description": "Guest checkout and the orders "
+                                          "placed from this session."},
+        {"name": "geo", "description": "Cities the store delivers to, with "
+                                       "their delivery price."},
         {"name": "catalog", "description": "Public categories, brands, "
                                            "products and comparison."},
         {"name": "cart", "description": "Cart for guests and signed-in "

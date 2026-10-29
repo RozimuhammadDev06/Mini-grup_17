@@ -11,13 +11,16 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'number', 'user', 'status', 'delivery_type',
-                    'payment_method', 'total', 'created_at', 'paid_at')
+    list_display = ('id', 'number', 'customer_name', 'customer_phone',
+                    'status', 'delivery_type', 'payment_method', 'total',
+                    'created_at', 'paid_at')
     list_editable = ('status',)
     list_filter = ('status', 'delivery_type', 'payment_method', 'created_at')
-    search_fields = ('number', 'user__email')
+    search_fields = ('number', 'user__email', 'customer_name',
+                     'customer_phone', 'customer_email')
     autocomplete_fields = ('user',)
-    readonly_fields = ('created_at',)
+    # The session key is an ownership token, not something staff edit.
+    readonly_fields = ('created_at', 'session_key')
     date_hierarchy = 'created_at'
     inlines = (OrderItemInline,)
 

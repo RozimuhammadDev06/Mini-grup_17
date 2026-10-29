@@ -32,6 +32,12 @@ class Order(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
         blank=True, related_name='orders')
+    # Guests have no account: the session that placed the order owns it,
+    # exactly as it owns the guest cart.
+    session_key = models.CharField(max_length=64, null=True, blank=True)
+    customer_name = models.CharField(max_length=150, blank=True)
+    customer_phone = models.CharField(max_length=20, blank=True)
+    customer_email = models.EmailField(blank=True)
     status = models.CharField(
         max_length=32, choices=Status.choices, default=Status.NEW)
     delivery_type = models.CharField(
@@ -59,6 +65,7 @@ class Order(models.Model):
         indexes = [
             models.Index(fields=['status']),
             models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['session_key', '-created_at']),
         ]
 
     def __str__(self):

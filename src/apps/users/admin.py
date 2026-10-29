@@ -18,8 +18,27 @@ class UserAdmin(BaseUserAdmin):
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
-    
+
+    # Django's default add form asks for a ``username``, which this model
+    # does not have (accounts are keyed by email), so the page crashed.
+    # With public registration disabled this form is how staff accounts are
+    # created, hence the permission flags.
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'first_name', 'last_name',
+                       'password1', 'password2'),
+        }),
+        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
+    )
+
     ordering = ('date_joined',)
+
+    def get_changeform_initial_data(self, request):
+        # ``is_active`` defaults to False on the model because it used to mean
+        # "email verified"; an account added by staff is ready to use.
+        return {**super().get_changeform_initial_data(request),
+                'is_active': True}
 
     readonly_fields = ('date_joined', 'last_login')
 
@@ -48,7 +67,6 @@ class UserOTPVerificationsAdmin(admin.ModelAdmin):
     )
 
     search_fields = (
-        "user__username",
         "user__email",
         "code",
     )
@@ -77,7 +95,6 @@ class UserOTPIDVerificationsAdmin(admin.ModelAdmin):
     )
 
     search_fields = (
-        "user__username",
         "user__email",
         "code",
     )
@@ -108,7 +125,6 @@ class ChangePasswordLogsAdmin(admin.ModelAdmin):
     )
 
     search_fields = (
-        "user__username",
         "user__email",
     )
 
@@ -141,7 +157,6 @@ class ChangeEmailLogsAdmin(admin.ModelAdmin):
     )
 
     search_fields = (
-        "user__username",
         "user__email",
         "old_email",
         "new_email",

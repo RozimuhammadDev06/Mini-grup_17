@@ -3,11 +3,11 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.orders.models import Order
+from apps.orders.services import owned_orders
 from apps.payments.gateway import GatewayError, get_client
 
 from ..serializers.qr import (InvoiceCreateSerializer,
@@ -17,7 +17,7 @@ from .card import gateway_error_response
 
 
 def _own_order(request, order_id):
-    return Order.objects.filter(pk=order_id, user=request.user).first()
+    return owned_orders(request).filter(pk=order_id).first()
 
 
 @extend_schema(
@@ -32,7 +32,7 @@ def _own_order(request, order_id):
     responses={200: QrResponseSerializer},
 )
 class QrGenerateView(GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = QrGenerateSerializer
 
     def post(self, request):
@@ -64,7 +64,7 @@ class QrGenerateView(GenericAPIView):
     responses={201: InvoiceResponseSerializer},
 )
 class InvoiceCreateView(GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = InvoiceCreateSerializer
 
     def post(self, request):
@@ -94,6 +94,8 @@ class InvoiceCreateView(GenericAPIView):
     responses={200: InvoiceResponseSerializer},
 )
 class InvoiceStatusView(APIView):
+    # Not open to guests: an invoice id is not tied to an order here, so a
+    # guest could read anyone's invoice. Guests poll their order instead.
     permission_classes = [IsAuthenticated]
 
     def get(self, request, invoice_id):

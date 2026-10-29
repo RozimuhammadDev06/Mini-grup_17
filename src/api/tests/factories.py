@@ -92,6 +92,16 @@ def create_discount_tier(threshold="1000", percent=5) -> DiscountTier:
         threshold=Decimal(threshold), percent=percent, is_active=True)
 
 
+def guest_client(client=None):
+    """
+    An APIClient holding a real, saved guest session, plus that session's
+    key — the identity a guest's cart and orders are owned by.
+    """
+    from rest_framework.test import APIClient
+    client = client or APIClient()
+    return client, client.session.session_key
+
+
 def auth_client(client, user):
     """Attach a real JWT for ``user`` to an APIClient."""
     from apps.users.services import issue_tokens

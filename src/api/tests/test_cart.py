@@ -1,14 +1,15 @@
-from decimal import Decimal
-
 from django.test import TestCase
-from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from apps.carts.models import Cart, CartItem
+from .factories import create_discount_tier, create_product, create_promo_code
 
-from .factories import (PASSWORD, auth_client, create_discount_tier,
-                        create_product, create_promo_code, create_user)
+# Disabled: the site runs without login and registration.
+# Imports used only by GuestCartMergeTests below.
+# from decimal import Decimal
+# from django.urls import reverse
+# from apps.carts.models import Cart, CartItem
+# from .factories import PASSWORD, create_user
 
 
 class CartTests(TestCase):
@@ -143,41 +144,42 @@ class CartPromoTests(TestCase):
         self.assertEqual(totals["total"], "162.00")
 
 
-class GuestCartMergeTests(TestCase):
-    def test_guest_cart_merges_into_the_account_on_login(self):
-        client = APIClient()
-        product = create_product(price="100.00", stock=10)
-        client.post("/api/v1/cart/items/",
-                    {"product_id": product.pk, "quantity": 2}, format="json")
+# Disabled: the site runs without login and registration.
+# class GuestCartMergeTests(TestCase):
+#     def test_guest_cart_merges_into_the_account_on_login(self):
+#         client = APIClient()
+#         product = create_product(price="100.00", stock=10)
+#         client.post("/api/v1/cart/items/",
+#                     {"product_id": product.pk, "quantity": 2}, format="json")
 
-        user = create_user(email="merge@example.com")
-        Cart.objects.create(user=user)
+#         user = create_user(email="merge@example.com")
+#         Cart.objects.create(user=user)
 
-        response = client.post(
-            reverse("auth:login"),
-            {"email": user.email, "password": PASSWORD}, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         response = client.post(
+#             reverse("auth:login"),
+#             {"email": user.email, "password": PASSWORD}, format="json")
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        user_cart = Cart.objects.get(user=user)
-        item = user_cart.items.get(product=product)
-        self.assertEqual(item.quantity, 2)
-        self.assertFalse(
-            Cart.objects.filter(user__isnull=True).exists(),
-            "the guest cart should be consumed by the merge")
+#         user_cart = Cart.objects.get(user=user)
+#         item = user_cart.items.get(product=product)
+#         self.assertEqual(item.quantity, 2)
+#         self.assertFalse(
+#             Cart.objects.filter(user__isnull=True).exists(),
+#             "the guest cart should be consumed by the merge")
 
-    def test_merge_clamps_to_available_stock(self):
-        client = APIClient()
-        product = create_product(price="10.00", stock=3)
-        client.post("/api/v1/cart/items/",
-                    {"product_id": product.pk, "quantity": 3}, format="json")
+#     def test_merge_clamps_to_available_stock(self):
+#         client = APIClient()
+#         product = create_product(price="10.00", stock=3)
+#         client.post("/api/v1/cart/items/",
+#                     {"product_id": product.pk, "quantity": 3}, format="json")
 
-        user = create_user(email="clamp@example.com")
-        cart = Cart.objects.create(user=user)
-        CartItem.objects.create(cart=cart, product=product, quantity=3,
-                                price=Decimal("10.00"))
+#         user = create_user(email="clamp@example.com")
+#         cart = Cart.objects.create(user=user)
+#         CartItem.objects.create(cart=cart, product=product, quantity=3,
+#                                 price=Decimal("10.00"))
 
-        client.post(reverse("auth:login"),
-                    {"email": user.email, "password": PASSWORD},
-                    format="json")
+#         client.post(reverse("auth:login"),
+#                     {"email": user.email, "password": PASSWORD},
+#                     format="json")
 
-        self.assertEqual(cart.items.get(product=product).quantity, 3)
+#         self.assertEqual(cart.items.get(product=product).quantity, 3)

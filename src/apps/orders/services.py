@@ -9,10 +9,13 @@ line, so a later price import never rewrites history.
 
 from __future__ import annotations
 
+import logging
 import secrets
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Iterable, Optional
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import F, QuerySet
@@ -20,10 +23,13 @@ from django.utils import timezone
 
 from apps.carts import services as cart_services
 from apps.carts.models import Cart
+from apps.carts.sessions import guest_session_key
 from apps.catalog.models import Stock
 from apps.discounts.services import PricingService, money
 
 from .models import Order, OrderItem
+
+logger = logging.getLogger(__name__)
 
 # Transitions the API is allowed to perform. Payment webhooks and staff tools
 # drive the rest of the state machine.
@@ -32,6 +38,10 @@ CUSTOMER_CANCELLABLE = {
     Order.Status.AWAITING_PAYMENT,
     Order.Status.PROCESSING,
 }
+
+# A card order in these statuses is still waiting for its online payment
+# while holding stock — the orders the unpaid-order expiry applies to.
+UNPAID_STATUSES = (Order.Status.NEW, Order.Status.AWAITING_PAYMENT)
 
 
 def generate_order_number() -> str:
@@ -51,33 +61,74 @@ def order_queryset(user) -> QuerySet[Order]:
             .prefetch_related("items", "items__product", "payments"))
 
 
-def _delivery_cost(delivery_type: str, city_id: Optional[int]) -> Decimal:
-    """Zone-based delivery cost; pickup is always free."""
-    if delivery_type == Order.DeliveryType.PICKUP or not city_id:
-        return Decimal("0.00")
-    from apps.geo.models import City
-    city = (City.objects
-            .select_related("delivery_zone")
-            .filter(pk=city_id)
-            .first())
-    if city is None or city.delivery_zone is None:
-        return Decimal("0.00")
-    return money(city.delivery_zone.base_cost)
+def owned_orders(request) -> QuerySet[Order]:
+    """
+    The orders this request may see: a signed-in user's, or those placed
+    from the caller's guest session.
+
+    A visitor without a valid session owns nothing. Filtering on a missing
+    key would otherwise match every order that has no owner at all.
+    """
+    if request.user.is_authenticated:
+        return order_queryset(request.user)
+    key = guest_session_key(request, create=False)
+    if not key:
+        return Order.objects.none()
+    return (Order.objects
+            .filter(user__isnull=True, session_key=key)
+            .prefetch_related("items", "items__product", "payments"))
+
+
+def _delivery_city(delivery_type: str, city_id: Optional[int]):
+    """
+    The city a delivery goes to, or ``None`` for pickup.
+
+    The city prices the delivery, so it is required and must belong to a
+    delivery zone. A missing or unknown city used to price delivery at zero;
+    a city the store should deliver to for free needs a zone costing 0.
+    """
+    if delivery_type == Order.DeliveryType.PICKUP:
+        return None
+    from apps.geo.selectors import deliverable_cities
+    city = deliverable_cities().filter(pk=city_id).first() if city_id else None
+    if city is None:
+        raise ValidationError(
+            {"city_id": ["Choose a city we deliver to."]})
+    return city
 
 
 @transaction.atomic
 def create_order_from_cart(
     *,
-    user,
+    user=None,
+    session_key: Optional[str] = None,
     cart: Cart,
     address_snapshot: dict,
+    customer: Optional[dict] = None,
     delivery_type: str = Order.DeliveryType.DELIVERY,
     payment_method: str = Order.PaymentMethod.CARD,
     city_id: Optional[int] = None,
 ) -> Order:
+    """
+    Place an order owned by ``user``, or by the guest ``session_key``.
+
+    ``customer`` holds the contact details (``name``, ``phone``, ``email``)
+    staff need to reach a guest, who has no profile to look them up in.
+    """
+    if user is None and not session_key:
+        raise ValueError("An order needs a user or a guest session key.")
+    customer = customer or {}
+
     items = list(cart.items.select_related("product"))
     if not items:
         raise ValidationError({"detail": ["Your cart is empty."]})
+
+    city = _delivery_city(delivery_type, city_id)
+    if city is not None:
+        # The chosen city is what was priced, so it is also where the order
+        # goes: the address cannot name a different one.
+        address_snapshot = {**address_snapshot, "city": city.name,
+                            "region": city.region.name}
 
     # Lock stock rows in a deterministic order to avoid deadlocks between
     # two concurrent checkouts that share products.
@@ -102,12 +153,17 @@ def create_order_from_cart(
     breakdown = PricingService.breakdown(
         subtotal=subtotal,
         promo_code=cart.promo_code,
-        delivery_cost=_delivery_cost(delivery_type, city_id),
+        delivery_cost=(city.delivery_zone.base_cost if city is not None
+                       else Decimal("0.00")),
     )
 
     order = Order.objects.create(
         number=generate_order_number(),
         user=user,
+        session_key=None if user is not None else session_key,
+        customer_name=customer.get("name", ""),
+        customer_phone=customer.get("phone", ""),
+        customer_email=customer.get("email", ""),
         status=(Order.Status.AWAITING_PAYMENT
                 if payment_method == Order.PaymentMethod.CARD
                 else Order.Status.PROCESSING),
@@ -182,6 +238,48 @@ def cancel_order(order: Order) -> Order:
     order.status = Order.Status.CANCELLED
     order.save(update_fields=["status"])
     return order
+
+
+def payment_due_at(order: Order) -> Optional[datetime]:
+    """When an unpaid card order will be released, or ``None``."""
+    if (order.payment_method != Order.PaymentMethod.CARD
+            or order.paid_at is not None
+            or order.status not in UNPAID_STATUSES):
+        return None
+    return order.created_at + timedelta(
+        minutes=settings.UNPAID_ORDER_TTL_MINUTES)
+
+
+def release_expired_orders(*, now: Optional[datetime] = None) -> list[str]:
+    """
+    Cancel card orders left unpaid past ``UNPAID_ORDER_TTL_MINUTES`` and
+    return their stock. Returns the numbers of the released orders.
+
+    Each order is re-read under a row lock, the same lock the payment
+    callbacks take, so an order paid while this runs is left alone; once
+    released, the callbacks refuse to take payment for it.
+    """
+    now = now or timezone.now()
+    cutoff = now - timedelta(minutes=settings.UNPAID_ORDER_TTL_MINUTES)
+    unpaid = dict(payment_method=Order.PaymentMethod.CARD,
+                  status__in=UNPAID_STATUSES, paid_at__isnull=True)
+    candidates = list(Order.objects.filter(created_at__lt=cutoff, **unpaid)
+                      .values_list("pk", flat=True))
+
+    released = []
+    for pk in candidates:
+        with transaction.atomic():
+            order = (Order.objects.select_for_update()
+                     .filter(pk=pk, **unpaid).first())
+            if order is None:  # paid or cancelled in the meantime
+                continue
+            restock_order(order)
+            order.status = Order.Status.CANCELLED
+            order.save(update_fields=["status"])
+        released.append(order.number)
+        logger.info("Released unpaid order %s after %s minutes",
+                    order.number, settings.UNPAID_ORDER_TTL_MINUTES)
+    return released
 
 
 def has_purchased(user, product_id: int) -> bool:

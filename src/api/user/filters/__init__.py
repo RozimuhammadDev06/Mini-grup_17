@@ -1,3 +1,4 @@
-from .order import OrderFilter
+# Disabled: the site runs without login and registration.
+# from .order import OrderFilter
 
-__all__ = ["OrderFilter"]
+# __all__ = ["OrderFilter"]

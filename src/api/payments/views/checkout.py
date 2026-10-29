@@ -3,11 +3,11 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.orders.models import Order
+from apps.orders.services import owned_orders
 from apps.payments import services
 from apps.payments.gateway import GatewayError
 from apps.payments.models import Payment
@@ -30,7 +30,7 @@ from ..serializers.checkout import (PaymentInitResponseSerializer,
     responses={201: PaymentInitResponseSerializer},
 )
 class PaymentInitView(GenericAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = PaymentInitSerializer
 
     def post(self, request):
@@ -38,9 +38,8 @@ class PaymentInitView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
-        # Scoped to request.user: another account's order id is a 404.
-        order = Order.objects.filter(
-            pk=data["order_id"], user=request.user).first()
+        # Scoped to the caller's session: another visitor's order is a 404.
+        order = owned_orders(request).filter(pk=data["order_id"]).first()
         if order is None:
             return Response({"detail": "Order not found."},
                             status=status.HTTP_404_NOT_FOUND)
@@ -70,10 +69,10 @@ class PaymentInitView(GenericAPIView):
     responses=PaymentSerializer(many=True),
 )
 class OrderPaymentsView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, order_id):
-        order = Order.objects.filter(pk=order_id, user=request.user).first()
+        order = owned_orders(request).filter(pk=order_id).first()
         if order is None:
             return Response({"detail": "Order not found."},
                             status=status.HTTP_404_NOT_FOUND)
@@ -91,11 +90,12 @@ class OrderPaymentsView(APIView):
     responses={200: PaymentSerializer},
 )
 class PaymentSyncView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request, payment_id):
         payment = Payment.objects.filter(
-            pk=payment_id, order__user=request.user).first()
+            pk=payment_id,
+            order__in=owned_orders(request).values("pk")).first()
         if payment is None:
             return Response({"detail": "Payment not found."},
                             status=status.HTTP_404_NOT_FOUND)

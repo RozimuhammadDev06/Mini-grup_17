@@ -190,6 +190,33 @@ class AdminRestrictedResourceTests(TestCase):
             self.client.delete(f"{BASE}/orders/{order.pk}/").status_code,
             status.HTTP_405_METHOD_NOT_ALLOWED)
 
+    def test_guest_contact_details_are_visible_and_searchable(self):
+        from apps.orders.models import Order
+        order = Order.objects.create(
+            number="ADM-G1", session_key="guest-session-key-1",
+            customer_name="Ali Valiyev", customer_phone="+998901112233",
+            customer_email="ali@example.com", subtotal=Decimal("10"),
+            total=Decimal("10"))
+
+        detail = self.client.get(f"{BASE}/orders/{order.pk}/").data
+        self.assertEqual(detail["customer_name"], "Ali Valiyev")
+        self.assertEqual(detail["customer_phone"], "+998901112233")
+        self.assertEqual(detail["customer_email"], "ali@example.com")
+        self.assertNotIn("session_key", detail,
+                         "the ownership token must not leak to staff clients")
+
+        found = self.client.get(f"{BASE}/orders/", {"search": "901112233"})
+        self.assertEqual([o["number"] for o in found.data["results"]],
+                         ["ADM-G1"])
+
+    def test_account_order_falls_back_to_the_account_email(self):
+        from apps.orders.models import Order
+        order = Order.objects.create(
+            number="ADM-U1", user=self.staff, subtotal=Decimal("10"),
+            total=Decimal("10"))
+        detail = self.client.get(f"{BASE}/orders/{order.pk}/").data
+        self.assertEqual(detail["customer_email"], self.staff.email)
+
     def test_order_status_transition(self):
         from apps.orders.models import Order
         order = Order.objects.create(

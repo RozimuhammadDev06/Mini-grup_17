@@ -42,6 +42,8 @@ class CardTokenizationMixin:
     to accept a PAN, whatever a client sends.
     """
 
+    # Not opened to guests: an anonymous endpoint that accepts card numbers
+    # is a card-testing target. Guests pay through /payments/init/.
     permission_classes = [IsAuthenticated]
 
     def initial(self, request, *args, **kwargs):
