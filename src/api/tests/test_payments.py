@@ -19,7 +19,7 @@ from apps.payments import services
 from apps.payments.gateway import GatewayError, build_auth_header
 from apps.payments.models import Payment
 
-from .factories import auth_client, create_product, create_user
+from .factories import auth_client, create_product, create_user, guest_client
 
 SERVICE_SECRET = "service-secret-key"
 SERVICE_ID = "1"
@@ -195,6 +195,45 @@ class CallbackTests(TestCase):
         self.assertEqual(Payment.objects.get(provider_id="555").status,
                          Payment.Status.REFUNDED)
 
+    # ------------------------------------------ cancelled / expired orders
+
+    def test_complete_for_a_cancelled_order_is_refused(self):
+        """An order released for non-payment must not be marked paid later."""
+        prepare_id = self._prepared()
+        Order.objects.filter(pk=self.order.pk).update(
+            status=Order.Status.CANCELLED)
+        stock_before = self.product.stock.quantity
+
+        response = self.client.post(COMPLETE, self.complete_payload(prepare_id))
+        self.assertEqual(response.data["error"],
+                         services.ERR_TRANSACTION_CANCELLED)
+
+        self.order.refresh_from_db()
+        self.product.stock.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.CANCELLED)
+        self.assertIsNone(self.order.paid_at)
+        self.assertEqual(self.product.stock.quantity, stock_before)
+        self.assertEqual(Payment.objects.get(provider_id="555").status,
+                         Payment.Status.CANCELLED)
+
+    def test_failed_payment_on_a_cancelled_order_does_not_restock_again(self):
+        prepare_id = self._prepared()
+        Order.objects.filter(pk=self.order.pk).update(
+            status=Order.Status.CANCELLED)
+        stock_before = self.product.stock.quantity
+
+        response = self.client.post(
+            COMPLETE,
+            self.complete_payload(prepare_id, error=-5017,
+                                  error_note="Failed"))
+        self.assertEqual(response.data["error"],
+                         services.ERR_TRANSACTION_CANCELLED)
+        self.product.stock.refresh_from_db()
+        self.assertEqual(self.product.stock.quantity, stock_before,
+                         "the stock already came back when it was cancelled")
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.CANCELLED)
+
     def test_malformed_payload_does_not_500(self):
         response = self.client.post(PREPARE, {"nonsense": "1"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -229,10 +268,9 @@ class AuthHeaderTests(TestCase):
 
 class PaymentInitTests(TestCase):
     def setUp(self):
-        self.user = create_user(email="init@example.com")
-        self.client = auth_client(APIClient(), self.user)
+        self.client, session_key = guest_client()
         self.order = Order.objects.create(
-            number="250101-000009", user=self.user,
+            number="250101-000009", session_key=session_key,
             status=Order.Status.NEW,
             subtotal=Decimal("250.00"), total=Decimal("250.00"))
 
@@ -277,18 +315,34 @@ class PaymentInitTests(TestCase):
                                     format="json")
         self.assertEqual(response.status_code, status.HTTP_502_BAD_GATEWAY)
 
-    def test_cannot_pay_another_users_order(self):
-        other = create_user(email="thief@example.com")
-        response = auth_client(APIClient(), other).post(
+    def test_cannot_pay_another_guests_order(self):
+        other, _ = guest_client()
+        response = other.post(
             "/api/v1/payments/init/", {"order_id": self.order.pk},
             format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_init_requires_authentication(self):
+    def test_visitor_without_a_session_cannot_pay(self):
         response = APIClient().post("/api/v1/payments/init/",
                                     {"order_id": self.order.pk},
                                     format="json")
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_owner_can_list_and_sync_payments(self):
+        payment = Payment.objects.create(
+            order=self.order, provider_id="77", amount=self.order.total)
+        listing = self.client.get(
+            f"/api/v1/payments/orders/{self.order.pk}/")
+        self.assertEqual(listing.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(listing.data), 1)
+
+        other, _ = guest_client()
+        self.assertEqual(
+            other.get(f"/api/v1/payments/orders/{self.order.pk}/")
+            .status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(
+            other.post(f"/api/v1/payments/{payment.pk}/sync/").status_code,
+            status.HTTP_404_NOT_FOUND)
 
 
 @override_settings(FINTECHHUB_ENABLE_CARD_TOKENIZATION=True)
@@ -412,10 +466,9 @@ class CardTokenizationTests(TestCase):
 
 class QrAndInvoiceTests(TestCase):
     def setUp(self):
-        self.user = create_user(email="qr@example.com")
-        self.client = auth_client(APIClient(), self.user)
+        self.client, session_key = guest_client()
         self.order = Order.objects.create(
-            number="250101-000088", user=self.user,
+            number="250101-000088", session_key=session_key,
             subtotal=Decimal("450.00"), total=Decimal("450.00"))
 
     @patch("apps.payments.gateway.FintechhubClient.qr_generate")
@@ -434,9 +487,9 @@ class QrAndInvoiceTests(TestCase):
                          self.order.number)
 
     @patch("apps.payments.gateway.FintechhubClient.qr_generate")
-    def test_qr_rejects_another_users_order(self, stub):
-        other = create_user(email="qrthief@example.com")
-        response = auth_client(APIClient(), other).post(
+    def test_qr_rejects_another_guests_order(self, stub):
+        other, _ = guest_client()
+        response = other.post(
             "/api/v1/payments/qr/", {"order_id": self.order.pk},
             format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -456,9 +509,18 @@ class QrAndInvoiceTests(TestCase):
     @patch("apps.payments.gateway.FintechhubClient.invoice_status")
     def test_invoice_status(self, stub):
         stub.return_value = {"error_code": 0, "invoice_status": "paid"}
-        response = self.client.get("/api/v1/payments/invoices/12/")
+        client = auth_client(APIClient(), create_user(email="qr@example.com"))
+        response = client.get("/api/v1/payments/invoices/12/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["invoice_status"], "paid")
+
+    @patch("apps.payments.gateway.FintechhubClient.invoice_status")
+    def test_invoice_status_is_not_open_to_guests(self, stub):
+        # An invoice id is not tied to an order, so a guest could read
+        # anyone's invoice; guests poll their order instead.
+        response = self.client.get("/api/v1/payments/invoices/12/")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        stub.assert_not_called()
 
 
 @override_settings(FINTECHHUB_ENABLE_CARD_TOKENIZATION=False)
@@ -599,6 +661,24 @@ class CallbackHardeningTests(TestCase):
         self.assertIsNone(self.order.paid_at,
                           "a rejected payment must never set paid_at")
         self.assertNotEqual(self.order.status, Order.Status.PROCESSING)
+
+    @patch("apps.payments.gateway.FintechhubClient.payment_status")
+    def test_sync_never_revives_a_cancelled_order(self, stub):
+        """A released order has returned its stock; it stays cancelled."""
+        Order.objects.filter(pk=self.order.pk).update(
+            status=Order.Status.CANCELLED)
+        self.order.refresh_from_db()
+        payment = Payment.objects.create(
+            order=self.order, provider=Payment.Provider.FINTECHHUB,
+            provider_id="903", amount=self.order.total,
+            status=Payment.Status.PENDING)
+        stub.return_value = {"error_code": 0, "payment_status": 3}
+
+        services.sync_payment_status(payment)
+
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.CANCELLED)
+        self.assertIsNone(self.order.paid_at)
 
     def test_duplicate_reversal_restocks_only_once(self):
         prepare_id = self.client.post(

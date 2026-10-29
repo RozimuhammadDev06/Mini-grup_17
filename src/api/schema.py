@@ -6,7 +6,7 @@ never calls. These preprocessing hooks split the same routes into two
 documents so each audience reads only what it can use:
 
 * ``/api/docs/``       — everything
-* ``/api/docs/frontend/`` — auth, catalog, cart, user, content
+* ``/api/docs/frontend/`` — catalog, cart, orders, content
 * ``/api/docs/admin/``    — the staff API only
 
 Nothing is duplicated: both documents are generated from the same views, so
@@ -44,18 +44,21 @@ FRONTEND_SETTINGS = {
     "DESCRIPTION": (
         "Everything a storefront or mobile client needs: authentication, "
         "catalogue, cart, checkout and content.\n\n"
-        "## Authentication\n"
-        "`POST /api/v1/auth/login/` returns an `access` / `refresh` pair. "
-        "Send the access token as `Authorization: Bearer <access>`; use "
-        "**Authorize** above to try requests from this page.\n\n"
-        "Access tokens last 60 minutes by default. When one expires, call "
-        "`POST /api/v1/auth/token/refresh/`. `POST /api/v1/auth/logout/` "
-        "blacklists the refresh token — the access token stays valid until "
-        "it expires, so discard it client-side too.\n\n"
+        # Disabled: the site runs without login and registration.
+        # "## Authentication\n"
+        # "`POST /api/v1/auth/login/` returns an `access` / `refresh` pair. "
+        # "Send the access token as `Authorization: Bearer <access>`; use "
+        # "**Authorize** above to try requests from this page.\n\n"
+        # "Access tokens last 60 minutes by default. When one expires, call "
+        # "`POST /api/v1/auth/token/refresh/`. `POST /api/v1/auth/logout/` "
+        # "blacklists the refresh token — the access token stays valid until "
+        # "it expires, so discard it client-side too.\n\n"
         "## Guests\n"
-        "Cart and product comparison work without a token; the visitor is "
-        "identified by the session cookie, so send credentials/cookies with "
-        "those calls. Logging in merges the guest cart into the account.\n\n"
+        "There are no customer accounts. Cart, comparison, checkout, orders "
+        "and payments all identify the visitor by the session cookie, so "
+        "send credentials/cookies with every call "
+        "(`credentials: \"include\"`). An order is visible only to the "
+        "session that placed it.\n\n"
         "## Errors\n"
         "Non-field errors are `{\"detail\": \"...\"}`. Field validation "
         "errors are `{\"field\": [\"message\", ...]}`.\n\n"
@@ -66,16 +69,22 @@ FRONTEND_SETTINGS = {
     "VERSION": "1.0.0",
     "PREPROCESSING_HOOKS": ["api.schema.frontend_endpoints"],
     "TAGS": [
-        {"name": "auth", "description":
-            "Registration, email verification, login, logout, password "
-            "reset."},
+        # Disabled: the site runs without login and registration.
+        # {"name": "auth", "description":
+        #     "Registration, email verification, login, logout, password "
+        #     "reset."},
         {"name": "catalog", "description":
             "Categories, brands, products, filters, reviews, comparison."},
         {"name": "cart", "description":
             "Cart for guests and signed-in users, plus promo codes."},
-        {"name": "user", "description":
-            "The signed-in user's profile, addresses, orders, wishlist and "
-            "reviews. Always scoped to the token."},
+        # Disabled: the site runs without login and registration.
+        # {"name": "user", "description":
+        #     "The signed-in user's profile, addresses, orders, wishlist and "
+        #     "reviews. Always scoped to the token."},
+        {"name": "orders", "description":
+            "Guest checkout and the orders placed from this session."},
+        {"name": "geo", "description":
+            "Cities the store delivers to, with their delivery price."},
         {"name": "content", "description":
             "Home page, news, promotions, banners, FAQ, static pages, "
             "lead forms."},

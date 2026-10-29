@@ -177,7 +177,8 @@ class DocsTests(TestCase):
         admin_paths = [p for p in schema["paths"] if "/admin/" in p]
         self.assertEqual(admin_paths, [])
         self.assertIn("/api/v1/catalog/products/", schema["paths"])
-        self.assertIn("/api/v1/auth/login/", schema["paths"])
+        # Disabled: the site runs without login and registration.
+        # self.assertIn("/api/v1/auth/login/", schema["paths"])
         self.assertEqual(schema["info"]["title"],
                          "Stroyopttorg Storefront API")
 

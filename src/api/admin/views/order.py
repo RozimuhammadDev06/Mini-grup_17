@@ -27,7 +27,8 @@ class AdminOrderViewSet(ListModelMixin, RetrieveModelMixin, UpdateModelMixin,
                 .select_related("user")
                 .prefetch_related("items"))
     serializer_class = AdminOrderSerializer
-    search_fields = ["number", "user__email"]
+    search_fields = ["number", "user__email", "customer_name",
+                     "customer_phone", "customer_email"]
     ordering_fields = ["created_at", "total", "status"]
     filterset_fields = ["status", "delivery_type", "payment_method"]
 

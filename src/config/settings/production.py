@@ -6,14 +6,31 @@ also run behind a TLS-terminating proxy or in a staging environment without
 HTTPS, without editing code.
 """
 
+from django.core.checks.security.base import (SECRET_KEY_INSECURE_PREFIX,
+                                              SECRET_KEY_MIN_LENGTH,
+                                              SECRET_KEY_MIN_UNIQUE_CHARACTERS)
 from django.core.exceptions import ImproperlyConfigured
 
 from .base import *  # noqa: F401,F403
-from .base import REDIS_URL, env, env_str
+from .base import REDIS_URL, SECRET_KEY, env, env_str
 
 DEBUG = False
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
+
+# ---------------------------------------------------------------------------
+# A weak SECRET_KEY is refused, not just warned about
+# ---------------------------------------------------------------------------
+# It signs sessions, CSRF tokens and JWTs; a short one can be brute-forced
+# offline and every signed value forged. Same rule as Django's
+# ``check --deploy`` (security.W009), which nothing forces anyone to run.
+if (len(SECRET_KEY) < SECRET_KEY_MIN_LENGTH
+        or len(set(SECRET_KEY)) < SECRET_KEY_MIN_UNIQUE_CHARACTERS
+        or SECRET_KEY.startswith(SECRET_KEY_INSECURE_PREFIX)):
+    raise ImproperlyConfigured(
+        f"SECRET_KEY is too weak for production: use at least "
+        f"{SECRET_KEY_MIN_LENGTH} random characters, for example the output "
+        f"of: python -c \"import secrets; print(secrets.token_urlsafe(50))\"")
 
 # ---------------------------------------------------------------------------
 # Redis is mandatory in production

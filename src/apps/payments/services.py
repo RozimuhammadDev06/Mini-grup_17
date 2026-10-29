@@ -271,6 +271,21 @@ def handle_complete(data: dict) -> dict:
     if not _amounts_match(order, data.get("amount", "")):
         return error_response(ERR_BAD_AMOUNT)
 
+    # A cancelled order already gave its stock back (the customer, staff or
+    # the unpaid-order expiry cancelled it): never take money for it and
+    # never restock it twice. Answering "cancelled" makes the gateway void
+    # the charge.
+    if (order.status == Order.Status.CANCELLED
+            and payment.status != Payment.Status.SUCCEEDED):
+        if payment.status != Payment.Status.CANCELLED:
+            payment.status = Payment.Status.CANCELLED
+            payment.raw_response = dict(data)
+            payment.save(update_fields=["status", "raw_response",
+                                        "updated_at"])
+        logger.warning("Complete callback for cancelled order %s refused",
+                       order.number)
+        return error_response(ERR_TRANSACTION_CANCELLED)
+
     gateway_error = int(data.get("error", 0) or 0)
 
     if gateway_error < 0:
@@ -356,7 +371,11 @@ def sync_payment_status(payment: Payment) -> Payment:
         payment.save(update_fields=["status", "raw_response", "updated_at"])
 
         order = payment.order
-        if new_status == Payment.Status.SUCCEEDED and order.paid_at is None:
+        # Only an order still waiting for payment moves on. A cancelled one
+        # has already returned its stock and must not come back to life.
+        if (new_status == Payment.Status.SUCCEEDED and order.paid_at is None
+                and order.status in (Order.Status.NEW,
+                                     Order.Status.AWAITING_PAYMENT)):
             order.paid_at = timezone.now()
             order.status = Order.Status.PROCESSING
             order.save(update_fields=["paid_at", "status"])

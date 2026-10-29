@@ -22,14 +22,9 @@ from apps.discounts.services import (PriceBreakdown, PricingService,
                                      PromoCodeError, money)
 
 from .models import Cart, CartItem
+from .sessions import guest_session_key
 
 MAX_QUANTITY_PER_ITEM = 999
-
-
-def _session_key(request) -> str:
-    if not request.session.session_key:
-        request.session.save()
-    return request.session.session_key
 
 
 def resolve_cart(request, *, create: bool = True) -> Optional[Cart]:
@@ -40,7 +35,9 @@ def resolve_cart(request, *, create: bool = True) -> Optional[Cart]:
             return cart
         return Cart.objects.filter(user=request.user).first()
 
-    key = _session_key(request)
+    key = guest_session_key(request, create=create)
+    if key is None:
+        return None
     cart = Cart.objects.filter(session_key=key, user__isnull=True).first()
     if cart is None and create:
         cart = Cart.objects.create(session_key=key)
